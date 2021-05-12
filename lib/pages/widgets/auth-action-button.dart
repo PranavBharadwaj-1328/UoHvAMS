@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:face_net_authentication/pages/db/database.dart';
 import 'package:face_net_authentication/pages/models/user.model.dart';
 import 'package:face_net_authentication/pages/profile.dart';
@@ -43,8 +42,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
 
     /// creates a new user in the 'database'
     await _dataBaseService.saveData(user, password, predictedData);
-    /*final conn = await MySqlConnection.connect(ConnectionSettings(
-        host: 'localhost',
+    final conn = await MySqlConnection.connect(ConnectionSettings(
+        host: '127.0.0.1',
         port: 3306,
         user: 'Pranav',
         db: 'Attendance_Management',
@@ -52,16 +51,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     var result = await conn.query(
         'insert into User_table (emp_id, name, email, password) values (?, ?, ?, ?)',
         [user, user, 'bob@bob.com', password]);
-    print('Inserted row id=${result.insertId}');*/
-
-    /*await http.post(Uri.parse('http://10.0.2.2/Attendance_Management/insertuserdata.php'),
-        body: {
-          "name": user,
-          "email": user,
-          "password": password,
-          "emp_id": user,
-        });*/
-
+    print('Inserted row id=${result.insertId}');
     /// resets the face stored in the face net sevice
     this._faceNetService.setPredictedData(null);
     Navigator.push(context,
