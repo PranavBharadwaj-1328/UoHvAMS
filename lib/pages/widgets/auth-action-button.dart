@@ -31,7 +31,10 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       TextEditingController(text: '');
   final TextEditingController _passwordTextEditingController =
       TextEditingController(text: '');
-
+  final TextEditingController _userIdEditingController =
+      TextEditingController(text: '');
+  final TextEditingController _useremailEditingController =
+      TextEditingController(text: '');
   User predictedUser;
 
   Future _signUp(context) async {
@@ -39,7 +42,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     List predictedData = _faceNetService.predictedData;
     String user = _userTextEditingController.text;
     String password = _passwordTextEditingController.text;
-
+    String email = _useremailEditingController.text;
+    String empid = _userIdEditingController.text;
     /// creates a new user in the 'database'
     await _dataBaseService.saveData(user, password, predictedData);
     final conn = await MySqlConnection.connect(ConnectionSettings(
@@ -50,7 +54,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         password: '7I3RP65o9I'));
     var result = await conn.query(
         'insert into User_table (emp_id, name, email, password) values (?, ?, ?, ?)',
-        [user, user, user, password]);
+        [empid, user, email, password]);
     print('Inserted row id=${result.insertId}');
     await conn.close();
     /// resets the face stored in the face net sevice
@@ -61,7 +65,12 @@ class _AuthActionButtonState extends State<AuthActionButton> {
 
   Future _signIn(context) async {
     String password = _passwordTextEditingController.text;
-
+    final conn = await MySqlConnection.connect(ConnectionSettings(
+        host: 'remotemysql.com',
+        port: 3306,
+        user: 'cVLw2NAjNX',
+        db: 'cVLw2NAjNX',
+        password: '7I3RP65o9I'));
     if (this.predictedUser.password == password) {
       Navigator.push(
           context,
@@ -70,7 +79,13 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                     this.predictedUser.user,
                     imagePath: _cameraService.imagePath,
                   )));
-    } else {
+      var result = await conn.query(
+          'insert into Logs (name, lon, lat) values (?, ?, ?)',
+          [this.predictedUser.user, '17.1955432', '24.847421']);
+      print('Inserted row id=${result.insertId}');
+      await conn.close();
+    }
+    else {
       showDialog(
         context: context,
         builder: (context) {
@@ -177,6 +192,20 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                         controller: _userTextEditingController,
                         labelText: "Your Name",
                       )
+                    : Container(),
+                SizedBox(height: 10),
+                !widget.isLogin
+                    ? AppTextField(
+                  controller: _userIdEditingController,
+                  labelText: "Employee ID",
+                )
+                    : Container(),
+                SizedBox(height: 10),
+                !widget.isLogin
+                    ? AppTextField(
+                  controller: _useremailEditingController,
+                  labelText: "Email",
+                )
                     : Container(),
                 SizedBox(height: 10),
                 widget.isLogin && predictedUser == null
