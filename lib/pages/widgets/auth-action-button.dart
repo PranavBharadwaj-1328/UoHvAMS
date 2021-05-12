@@ -43,15 +43,16 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     /// creates a new user in the 'database'
     await _dataBaseService.saveData(user, password, predictedData);
     final conn = await MySqlConnection.connect(ConnectionSettings(
-        host: '127.0.0.1',
+        host: 'remotemysql.com',
         port: 3306,
-        user: 'Pranav',
-        db: 'Attendance_Management',
-        password: ''));
+        user: 'cVLw2NAjNX',
+        db: 'cVLw2NAjNX',
+        password: '7I3RP65o9I'));
     var result = await conn.query(
         'insert into User_table (emp_id, name, email, password) values (?, ?, ?, ?)',
-        [user, user, 'bob@bob.com', password]);
+        [user, user, user, password]);
     print('Inserted row id=${result.insertId}');
+    await conn.close();
     /// resets the face stored in the face net sevice
     this._faceNetService.setPredictedData(null);
     Navigator.push(context,
