@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../home.dart';
 import 'app_text_field.dart';
 import 'package:mysql1/mysql1.dart';
+import 'package:geolocator/geolocator.dart';
 
 class AuthActionButton extends StatefulWidget {
   AuthActionButton(this._initializeControllerFuture,
@@ -36,7 +37,19 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   final TextEditingController _userEmailEditingController =
       TextEditingController(text: '');
   User predictedUser;
-
+  //geolocator
+  Future getCurrentLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    Position lastPosition = await Geolocator.getLastKnownPosition();
+    bool geolocationStatus = await Geolocator.isLocationServiceEnabled();
+    print("Status : $geolocationStatus");
+    print(lastPosition);
+    var lati = position.latitude;
+    var longi = position.longitude;
+    return ("$lati"+":"+"$longi");
+  }
+  
   Future _signUp(context) async {
     /// gets predicted data from facenet service (user face detected)
     List predictedData = _faceNetService.predictedData;
@@ -99,10 +112,13 @@ class _AuthActionButtonState extends State<AuthActionButton> {
           ),
         ),
       );
-
+      //fetching data from geolocator
+      var loc = await getCurrentLocation();
+      var lat = loc.split(":")[0];
+      var lon = loc.split(":")[1];
       var result = await conn.query(
         'insert into Logs (name, lon, lat) values (?, ?, ?)',
-        [this.predictedUser.user, '17.1955432', '24.847421'],
+        [this.predictedUser.user, lon, lat],
       );
 
       print('Inserted row id=${result.insertId}');
