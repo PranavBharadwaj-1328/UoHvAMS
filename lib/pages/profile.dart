@@ -43,19 +43,24 @@ class _ProfileState extends State<Profile> {
     var initializationSettingsIOS =
         IOSInitializationSettings(onDidReceiveLocalNotification: null);
     var initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: null);
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsIOS,
+    );
+    flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onSelectNotification: null,
+    );
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-
     if (!mounted) return;
     Geofence.initialize();
+    Geofence.requestPermissions();
+
+    // Geofence.getCurrentLocation().then((coordinate) {
+    //   print(
+    //       "Your latitude is ${coordinate.latitude} and longitude ${coordinate.longitude}");
+    // });
 
     Geofence.startListening(GeolocationEvent.entry, (entry) async {
       print(entry.id);
@@ -66,20 +71,29 @@ class _ProfileState extends State<Profile> {
 
     Geofence.startListening(GeolocationEvent.exit, (entry) async {
       print(entry.id);
-      scheduleNotification("Entry of a georegion", "Welcome to: ${entry.id}");
+      scheduleNotification("Exit of a georegion", "Byebye to: ${entry.id}");
 
       // TODO send to db
     });
 
-    Geolocation location = Geolocation(
-        latitude: _latitude,
-        longitude: _longitude,
-        radius: 10.0,
-        id: "NKS Home");
+    Geolocation sirLocation = Geolocation(
+        latitude: _latitude, longitude: _longitude, radius: 10, id: "NKS home");
 
-    Geofence.addGeolocation(location, GeolocationEvent.entry).then((onValue) {
+    // rohan home for demo reasons
+    Geolocation location = Geolocation(
+      latitude: 17.5036619,
+      longitude: 78.3568218,
+      radius: 10.0,
+      id: "Rohan Home",
+    );
+
+    // Geofence.addGeolocation(location, GeolocationEvent.entry).then((onValue) {
+    Geofence.addGeolocation(sirLocation, GeolocationEvent.entry).then((onValue) {
       print("great success");
-      scheduleNotification("Georegion added", "Your geofence has been added!");
+      scheduleNotification(
+        "Georegion added",
+        "Your geofence has been added!",
+      );
     }).catchError((onError) {
       print("great failure");
     });
@@ -87,31 +101,33 @@ class _ProfileState extends State<Profile> {
     Geofence.startListeningForLocationChanges();
     Geofence.backgroundLocationUpdated.stream.listen((event) async {
       print(event.toString());
-      scheduleNotification("You moved significantly",
-          "a significant location change just happened.");
+      scheduleNotification(
+        "You moved significantly",
+        "a significant location change just happened.",
+      );
     });
 
     setState(() {});
   }
-
-  void scheduleNotification(String title, String subtitle) {
-    print("scheduling one with $title and $subtitle");
-    var rng = new Random();
-    Future.delayed(Duration(seconds: 5)).then((result) async {
-      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-          'your channel id', 'your channel name', 'your channel description',
-          importance: Importance.high,
-          priority: Priority.high,
-          ticker: 'ticker');
-      var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-      var platformChannelSpecifics = NotificationDetails(
-          android: androidPlatformChannelSpecifics,
-          iOS: iOSPlatformChannelSpecifics);
-      await flutterLocalNotificationsPlugin.show(
-          rng.nextInt(100000), title, subtitle, platformChannelSpecifics,
-          payload: 'item x');
-    });
-  }
+  //
+  // void scheduleNotification(String title, String subtitle) {
+  //   print("scheduling one with $title and $subtitle");
+  //   var rng = new Random();
+  //   Future.delayed(Duration(seconds: 5)).then((result) async {
+  //     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+  //         'your channel id', 'your channel name', 'your channel description',
+  //         importance: Importance.high,
+  //         priority: Priority.high,
+  //         ticker: 'ticker');
+  //     var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+  //     var platformChannelSpecifics = NotificationDetails(
+  //         android: androidPlatformChannelSpecifics,
+  //         iOS: iOSPlatformChannelSpecifics);
+  //     await flutterLocalNotificationsPlugin.show(
+  //         rng.nextInt(100000), title, subtitle, platformChannelSpecifics,
+  //         payload: 'item x');
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +192,33 @@ class _ProfileState extends State<Profile> {
                   ],
                 ),
               ),
+              Column(
+                children: [
+                  ElevatedButton(
+                    child: Text("Listen to background updates"),
+                    onPressed: () {
+                      Geofence.startListeningForLocationChanges();
+                      Geofence.backgroundLocationUpdated.stream.listen((event) {
+                        scheduleNotification("You moved significantly",
+                            "a significant location change just happened.");
+                      });
+                    },
+                  ),
+                  ElevatedButton(
+                    child: Text("Stop listening to background updates"),
+                    onPressed: () {
+                      Geofence.stopListeningForLocationChanges();
+                    },
+                  ),
+                  ElevatedButton(
+                    child: Text("Checking to see if notifications are working"),
+                    onPressed: () {
+                      scheduleNotification("Demo",
+                            "demo message");
+                    },
+                  ),
+                ],
+              ),
               Spacer(),
               AppButton(
                 text: "Leave",
@@ -199,5 +242,25 @@ class _ProfileState extends State<Profile> {
         ),
       ),
     );
+
+
+  }
+  void scheduleNotification(String title, String subtitle) {
+    print("scheduling one with $title and $subtitle");
+    var rng = new Random();
+    Future.delayed(Duration(seconds: 5)).then((result) async {
+      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+          'your channel id', 'your channel name', 'your channel description',
+          importance: Importance.high,
+          priority: Priority.high,
+          ticker: 'ticker');
+      var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+      var platformChannelSpecifics = NotificationDetails(
+          android: androidPlatformChannelSpecifics,
+          iOS: iOSPlatformChannelSpecifics);
+      await flutterLocalNotificationsPlugin.show(
+          rng.nextInt(100000), title, subtitle, platformChannelSpecifics,
+          payload: 'item x');
+    });
   }
 }
