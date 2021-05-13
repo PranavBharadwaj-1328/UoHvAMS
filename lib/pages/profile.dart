@@ -1,23 +1,117 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:face_net_authentication/pages/widgets/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'home.dart';
 import 'dart:math' as math;
+
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_geofence/geofence.dart';
+import 'package:intl/intl.dart';
+
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class Profile extends StatelessWidget {
-  const Profile(this.username, {Key key, this.imagePath}) : super(key: key);
+class Profile extends StatefulWidget {
+  const Profile(this.username, this.location, {Key key, this.imagePath})
+      : super(key: key);
   final String username;
+  final String location;
   final String imagePath;
 
-  final String githubURL =
-      "https://github.com/MCarlomagno/FaceRecognitionAuth/tree/master";
+  @override
+  _ProfileState createState() => _ProfileState();
+}
 
-  void _launchURL() async => await canLaunch(githubURL)
-      ? await launch(githubURL)
-      : throw 'Could not launch $githubURL';
+class _ProfileState extends State<Profile> {
+  String _platformVersion = 'Unknown';
+  double _latitude = 17.4301783;
+  double _longitude = 78.5421611;
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      new FlutterLocalNotificationsPlugin();
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+
+// initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
+    var initializationSettingsAndroid =
+        new AndroidInitializationSettings('app_icon');
+    var initializationSettingsIOS =
+        IOSInitializationSettings(onDidReceiveLocalNotification: null);
+    var initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: null);
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlatformState() async {
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+
+    if (!mounted) return;
+    Geofence.initialize();
+
+    Geofence.startListening(GeolocationEvent.entry, (entry) async {
+      print(entry.id);
+      scheduleNotification("Entry of a georegion", "Welcome to: ${entry.id}");
+
+      // TODO send to db
+    });
+
+    Geofence.startListening(GeolocationEvent.exit, (entry) async {
+      print(entry.id);
+      scheduleNotification("Entry of a georegion", "Welcome to: ${entry.id}");
+
+      // TODO send to db
+    });
+
+    Geolocation location = Geolocation(
+        latitude: _latitude,
+        longitude: _longitude,
+        radius: 10.0,
+        id: "NKS Home");
+
+    Geofence.addGeolocation(location, GeolocationEvent.entry).then((onValue) {
+      print("great success");
+      scheduleNotification("Georegion added", "Your geofence has been added!");
+    }).catchError((onError) {
+      print("great failure");
+    });
+
+    Geofence.startListeningForLocationChanges();
+    Geofence.backgroundLocationUpdated.stream.listen((event) async {
+      print(event.toString());
+      scheduleNotification("You moved significantly",
+          "a significant location change just happened.");
+    });
+
+    setState(() {});
+  }
+
+  void scheduleNotification(String title, String subtitle) {
+    print("scheduling one with $title and $subtitle");
+    var rng = new Random();
+    Future.delayed(Duration(seconds: 5)).then((result) async {
+      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+          'your channel id', 'your channel name', 'your channel description',
+          importance: Importance.high,
+          priority: Priority.high,
+          ticker: 'ticker');
+      var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+      var platformChannelSpecifics = NotificationDetails(
+          android: androidPlatformChannelSpecifics,
+          iOS: iOSPlatformChannelSpecifics);
+      await flutterLocalNotificationsPlugin.show(
+          rng.nextInt(100000), title, subtitle, platformChannelSpecifics,
+          payload: 'item x');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +130,7 @@ class Profile extends StatelessWidget {
                       color: Colors.black,
                       image: DecorationImage(
                         fit: BoxFit.cover,
-                        image: FileImage(File(imagePath)),
+                        image: FileImage(File(widget.imagePath)),
                       ),
                     ),
                     margin: EdgeInsets.all(20),
@@ -51,7 +145,7 @@ class Profile extends StatelessWidget {
                     //     transform: Matrix4.rotationY(mirror)),
                   ),
                   Text(
-                    'Hi ' + username + '!',
+                    'Hi ' + widget.username + '!',
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -74,7 +168,8 @@ class Profile extends StatelessWidget {
                       height: 10,
                     ),
                     Text(
-                      'Your attendance has been registered at the following location: ',
+                      'Your attendance has been registered at the following location: ' +
+                          widget.location,
                       style: TextStyle(fontSize: 16),
                       textAlign: TextAlign.left,
                     )

@@ -37,17 +37,48 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   final TextEditingController _userEmailEditingController =
       TextEditingController(text: '');
   User predictedUser;
-  //geolocator
-  Future getCurrentLocation() async {
+
+  /// GET LOCATION USING GEO LOCATOR
+  Future<String> getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+        'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
     Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    Position lastPosition = await Geolocator.getLastKnownPosition();
-    bool geolocationStatus = await Geolocator.isLocationServiceEnabled();
-    print("Status : $geolocationStatus");
-    print(lastPosition);
+        desiredAccuracy: LocationAccuracy.best);
+    // Position lastPosition = await Geolocator.getLastKnownPosition();
+    // bool geolocationStatus = await Geolocator.isLocationServiceEnabled();
+    // print("Status : $geolocationStatus");
+    // print(lastPosition);
     var lati = position.latitude;
     var longi = position.longitude;
-    return ("$lati"+":"+"$longi");
+    return ("$lati:$longi");
   }
   
   Future _signUp(context) async {
@@ -103,16 +134,21 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     );
 
     if (this.predictedUser.password == password) {
-      //fetching data from geolocator
+
+      /// fetching data from geolocator
       var loc = await getCurrentLocation();
+      print("loc");
       var lat = loc.split(":")[0];
       var lon = loc.split(":")[1];
+
       var result = await conn.query(
         'insert into Logs (name, lon, lat) values (?, ?, ?)',
         [this.predictedUser.user, lon, lat],
       );
+
       print('Inserted row id=${result.insertId}');
       await conn.close();
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -252,7 +288,6 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                             labelText: "Your Email",
                             keyboardType: TextInputType.emailAddress,
                           ),
-                          SizedBox(height: 20),
                         ],
                       )
                     : Container(),
