@@ -103,16 +103,6 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     );
 
     if (this.predictedUser.password == password) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => Profile(
-            this.predictedUser.user,
-            imagePath: _cameraService.imagePath,
-          ),
-        ),
-      );
-
       //fetching data from geolocator
       var loc = await getCurrentLocation();
       var lat = loc.split(":")[0];
@@ -121,10 +111,18 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         'insert into Logs (name, lon, lat) values (?, ?, ?)',
         [this.predictedUser.user, lon, lat],
       );
-
       print('Inserted row id=${result.insertId}');
       await conn.close();
-
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => Profile(
+            this.predictedUser.user,
+            loc,
+            imagePath: _cameraService.imagePath,
+          ),
+        ),
+      );
       /// LOGS DONE
     } else {
       showDialog(
