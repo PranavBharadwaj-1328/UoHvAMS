@@ -24,6 +24,7 @@ dependencies:
   url_launcher: ^6.0.3
   http: ^0.13.3
   mysql1: ^0.19.2
+  geolocator: ^7.0.3
 
 dev_dependencies:
   flutter_test:
