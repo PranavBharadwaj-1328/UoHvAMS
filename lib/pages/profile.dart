@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:face_net_authentication/pages/widgets/app_button.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'home.dart';
 import 'dart:math' as math;
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Profile extends StatelessWidget {
   const Profile(this.username, {Key key, this.imagePath}) : super(key: key);

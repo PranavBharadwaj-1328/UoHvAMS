@@ -33,7 +33,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       TextEditingController(text: '');
   final TextEditingController _userIdEditingController =
       TextEditingController(text: '');
-  final TextEditingController _useremailEditingController =
+  final TextEditingController _userEmailEditingController =
       TextEditingController(text: '');
   User predictedUser;
 
@@ -42,7 +42,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     List predictedData = _faceNetService.predictedData;
     String user = _userTextEditingController.text;
     String password = _passwordTextEditingController.text;
-    String email = _useremailEditingController.text;
+    String email = _userEmailEditingController.text;
     String empid = _userIdEditingController.text;
 
     /// creates a new user in the 'database'
@@ -196,8 +196,9 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         children: [
           widget.isLogin && predictedUser != null
               ? Container(
+                  padding: EdgeInsets.only(top: 10.0, bottom: 30.0),
                   child: Text(
-                    'Welcome back, ' + predictedUser.user + '.',
+                    'Welcome back, ' + predictedUser.user + '!',
                     style: TextStyle(fontSize: 20),
                   ),
                 )
@@ -232,7 +233,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                           ),
                           SizedBox(height: 10),
                           AppTextField(
-                            controller: _useremailEditingController,
+                            controller: _userEmailEditingController,
                             labelText: "Your Email",
                             keyboardType: TextInputType.emailAddress,
                           ),
@@ -250,7 +251,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                     ? AppButton(
                         text: 'LOGIN',
                         onPressed: () async {
-                          _signIn(context);
+                          // _signIn(context);
                         },
                         icon: Icon(
                           Icons.login,
