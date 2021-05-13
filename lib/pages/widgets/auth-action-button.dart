@@ -233,7 +233,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                           SizedBox(height: 10),
                           AppTextField(
                             controller: _useremailEditingController,
-                            labelText: "Email",
+                            labelText: "Your Email",
+                            keyboardType: TextInputType.emailAddress,
                           ),
                           SizedBox(height: 10),
                           AppTextField(
