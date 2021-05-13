@@ -112,6 +112,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
           ),
         ),
       );
+
       //fetching data from geolocator
       var loc = await getCurrentLocation();
       var lat = loc.split(":")[0];
@@ -263,11 +264,22 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                         ],
                       )
                     : Container(),
+                SizedBox(height: 10),
+                widget.isLogin && predictedUser == null
+                    ? Container()
+                    : AppTextField(
+                        controller: _passwordTextEditingController,
+                        labelText: "Password",
+                        isPassword: true,
+                      ),
+                SizedBox(height: 10),
+                Divider(),
+                SizedBox(height: 10),
                 widget.isLogin && predictedUser != null
                     ? AppButton(
                         text: 'LOGIN',
                         onPressed: () async {
-                          // _signIn(context);
+                          _signIn(context);
                         },
                         icon: Icon(
                           Icons.login,
