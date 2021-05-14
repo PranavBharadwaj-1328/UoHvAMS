@@ -1,13 +1,14 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:face_net_authentication/pages/widgets/app_button.dart';
 import 'package:flutter/material.dart';
+import './db/sqldb.dart';
+import '../services/georegion.service.dart';
+import '../services/notification.service.dart';
 import 'home.dart';
 import 'dart:math' as math;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_geofence/geofence.dart';
 import 'package:intl/intl.dart';
-import 'package:mysql1/mysql1.dart';
 
 class Profile extends StatefulWidget {
   const Profile(this.username, this.location, {Key key, this.imagePath})
@@ -22,30 +23,21 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   String _platformVersion = 'Unknown';
-  double _latitude = 17.4301783;
-  double _longitude = 78.5421611;
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       new FlutterLocalNotificationsPlugin();
+
+  final SqlDatabaseService _sqlDatabaseService = SqlDatabaseService();
+  final GeoRegionInitialize _geoRegionInitialize = GeoRegionInitialize();
+  NotificationService _notificationService;
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
 
-// initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
-    var initializationSettingsAndroid =
-        new AndroidInitializationSettings('@mipmap/ic_launcher');
-    var initializationSettingsIOS =
-        IOSInitializationSettings(onDidReceiveLocalNotification: null);
-    var initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
-    flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onSelectNotification: null,
-    );
+    _notificationService = NotificationService(flutterLocalNotificationsPlugin);
+    _notificationService.notificationInitialize();
   }
 
   Future<void> initPlatformState() async {
@@ -53,90 +45,30 @@ class _ProfileState extends State<Profile> {
     Geofence.initialize();
     Geofence.requestPermissions();
 
-    // Geofence.getCurrentLocation().then((coordinate) {
-    //   print(
-    //       "Your latitude is ${coordinate.latitude} and longitude ${coordinate.longitude}");
-    // });
-
-    // sir home
-    Geolocation locationSir = Geolocation(
-        latitude: _latitude, longitude: _longitude, radius: 10, id: "NKS home");
-
-    // pb home
-    Geolocation locationPb = Geolocation(
-        latitude: 17.397909, longitude: 78.5199671, radius: 10.0, id: "PB Home");
-
-    // rohan home
-    Geolocation locationRohan = Geolocation(
-        latitude: 17.503565, longitude: 78.356778, radius: 20.0, id: "Rohan Home");
-
-    // rohan neighbour
-    Geolocation locationRohanNeighbor = Geolocation(
-        latitude: 17.504054, longitude: 78.357531, radius: 20.0, id: "Rohan Home");
-
-    Geofence.addGeolocation(locationRohan, GeolocationEvent.entry).then((onValue) {
-      // Geofence.addGeolocation(sirLocation, GeolocationEvent.entry).then((onValue) {
-      print("great success");
-      scheduleNotification(
-        "Georegion added",
-        "Your geofence has been added!",
-      );
-    }).catchError((onError) {
-      print("great failure");
-    });
+    _geoRegionInitialize.addGeoRegions();
 
     Geofence.startListeningForLocationChanges();
     Geofence.backgroundLocationUpdated.stream.listen((event) async {
       print(event.toString());
-      scheduleNotification(
+      _notificationService.scheduleNotification(
         "You moved significantly",
         "a significant location change just happened.",
       );
     });
+
     Geofence.startListening(GeolocationEvent.entry, (entry) async {
       print(entry.id);
-      scheduleNotification("Entry of a georegion", "Welcome to: ${entry.id}");
-      // TODO send to db
-      final conn = await MySqlConnection.connect(
-        ConnectionSettings(
-          host: 'remotemysql.com',
-          port: 3306,
-          user: 'cVLw2NAjNX',
-          db: 'cVLw2NAjNX',
-          password: '7I3RP65o9I',
-        ),
-      );
+      _notificationService.scheduleNotification("Entry of a georegion", "Welcome to: ${entry.id}");
 
-      var result = await conn.query(
-        'insert into Geo_logs (name, loc_id, in_out) values ( ?, ?)',
-        [widget.username, entry.id, "i"],
-      );
-      print('Inserted row id=${result.insertId}');
-
-      await conn.close();
+      await _sqlDatabaseService.logGeoFence(widget.username, entry.id, "i");
     });
 
     Geofence.startListening(GeolocationEvent.exit, (entry) async {
       print(entry.id);
-      scheduleNotification("Exit of a georegion", "Byebye to: ${entry.id}");
-      // TODO send to db
-      final conn = await MySqlConnection.connect(
-        ConnectionSettings(
-          host: 'remotemysql.com',
-          port: 3306,
-          user: 'cVLw2NAjNX',
-          db: 'cVLw2NAjNX',
-          password: '7I3RP65o9I',
-        ),
-      );
+      _notificationService.scheduleNotification("Exit of a georegion", "Byebye to: ${entry.id}");
 
-      var result = await conn.query(
-        'insert into Geo_logs (name, loc_id, in_out) values ( ?, ?)',
-        [widget.username, entry.id, "o"],
-      );
-      print('Inserted row id=${result.insertId}');
+      await _sqlDatabaseService.logGeoFence(widget.username, entry.id, "o");
 
-      await conn.close();
 //      Navigator.push(
 //        context,
 //        MaterialPageRoute(builder: (context) => MyHomePage()),
@@ -145,25 +77,6 @@ class _ProfileState extends State<Profile> {
 
     setState(() {});
   }
-  //
-  // void scheduleNotification(String title, String subtitle) {
-  //   print("scheduling one with $title and $subtitle");
-  //   var rng = new Random();
-  //   Future.delayed(Duration(seconds: 5)).then((result) async {
-  //     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-  //         'your channel id', 'your channel name', 'your channel description',
-  //         importance: Importance.high,
-  //         priority: Priority.high,
-  //         ticker: 'ticker');
-  //     var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-  //     var platformChannelSpecifics = NotificationDetails(
-  //         android: androidPlatformChannelSpecifics,
-  //         iOS: iOSPlatformChannelSpecifics);
-  //     await flutterLocalNotificationsPlugin.show(
-  //         rng.nextInt(100000), title, subtitle, platformChannelSpecifics,
-  //         payload: 'item x');
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -228,33 +141,6 @@ class _ProfileState extends State<Profile> {
                   ],
                 ),
               ),
-//              Column(
-//                children: [
-//                  ElevatedButton(
-//                    child: Text("Listen to background updates"),
-//                    onPressed: () {
-//                      Geofence.startListeningForLocationChanges();
-//                      Geofence.backgroundLocationUpdated.stream.listen((event) {
-//                        scheduleNotification("You moved significantly",
-//                            "a significant location change just happened.");
-//                      });
-//                    },
-//                  ),
-//                  ElevatedButton(
-//                    child: Text("Stop listening to background updates"),
-//                    onPressed: () {
-//                      Geofence.stopListeningForLocationChanges();
-//                    },
-//                  ),
-//                  ElevatedButton(
-//                    child: Text("Checking to see if notifications are working"),
-//                    onPressed: () {
-//                      scheduleNotification("Demo",
-//                            "demo message");
-//                    },
-//                  ),
-//                ],
-//              ),
               Spacer(),
               AppButton(
                 text: "Leave",
@@ -278,24 +164,5 @@ class _ProfileState extends State<Profile> {
         ),
       ),
     );
-  }
-
-  void scheduleNotification(String title, String subtitle) {
-    print("scheduling one with $title and $subtitle");
-    var rng = new Random();
-    Future.delayed(Duration(seconds: 5)).then((result) async {
-      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-          'your channel id', 'your channel name', 'your channel description',
-          importance: Importance.high,
-          priority: Priority.high,
-          ticker: 'ticker');
-      var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-      var platformChannelSpecifics = NotificationDetails(
-          android: androidPlatformChannelSpecifics,
-          iOS: iOSPlatformChannelSpecifics);
-      await flutterLocalNotificationsPlugin.show(
-          rng.nextInt(100000), title, subtitle, platformChannelSpecifics,
-          payload: 'item x');
-    });
   }
 }
