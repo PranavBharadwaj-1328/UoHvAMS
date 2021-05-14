@@ -9,7 +9,6 @@ import 'package:flutter_geofence/geofence.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 
-
 class Profile extends StatefulWidget {
   const Profile(this.username, this.location, {Key key, this.imagePath})
       : super(key: key);
@@ -59,25 +58,24 @@ class _ProfileState extends State<Profile> {
     //       "Your latitude is ${coordinate.latitude} and longitude ${coordinate.longitude}");
     // });
 
-    Geolocation location0 = Geolocation(
+    // sir home
+    Geolocation locationSir = Geolocation(
         latitude: _latitude, longitude: _longitude, radius: 10, id: "NKS home");
 
-    // rohan home for demo reasons
-    Geolocation location = Geolocation(
-      latitude: 17.397909,
-      longitude: 78.5199671,
-      radius: 5.0,
-      id: "PB Home",
-    );
-    Geolocation location2 = Geolocation(
-      latitude: 17.397909,
-      longitude: 78.5199671,
-      radius: 5.0,
-      id: "Rohan Home",
-    );
+    // pb home
+    Geolocation locationPb = Geolocation(
+        latitude: 17.397909, longitude: 78.5199671, radius: 10.0, id: "PB Home");
 
-    Geofence.addGeolocation(location, GeolocationEvent.entry).then((onValue) {
-    // Geofence.addGeolocation(sirLocation, GeolocationEvent.entry).then((onValue) {
+    // rohan home
+    Geolocation locationRohan = Geolocation(
+        latitude: 17.503565, longitude: 78.356778, radius: 20.0, id: "Rohan Home");
+
+    // rohan neighbour
+    Geolocation locationRohanNeighbor = Geolocation(
+        latitude: 17.504054, longitude: 78.357531, radius: 20.0, id: "Rohan Home");
+
+    Geofence.addGeolocation(locationRohan, GeolocationEvent.entry).then((onValue) {
+      // Geofence.addGeolocation(sirLocation, GeolocationEvent.entry).then((onValue) {
       print("great success");
       scheduleNotification(
         "Georegion added",
@@ -280,9 +278,8 @@ class _ProfileState extends State<Profile> {
         ),
       ),
     );
-
-
   }
+
   void scheduleNotification(String title, String subtitle) {
     print("scheduling one with $title and $subtitle");
     var rng = new Random();

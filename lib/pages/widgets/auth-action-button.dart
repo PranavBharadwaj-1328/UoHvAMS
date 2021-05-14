@@ -5,6 +5,7 @@ import 'package:face_net_authentication/pages/profile.dart';
 import 'package:face_net_authentication/pages/widgets/app_button.dart';
 import 'package:face_net_authentication/services/camera.service.dart';
 import 'package:face_net_authentication/services/facenet.service.dart';
+import '../db/sqldb.dart';
 import 'package:flutter/material.dart';
 import '../home.dart';
 import 'app_text_field.dart';
@@ -27,6 +28,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   final FaceNetService _faceNetService = FaceNetService();
   final DataBaseService _dataBaseService = DataBaseService();
   final CameraService _cameraService = CameraService();
+  final SqlDatabaseService _sqlDatabaseService = SqlDatabaseService();
 
   final TextEditingController _userTextEditingController =
       TextEditingController(text: '');
@@ -67,7 +69,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     if (permission == LocationPermission.deniedForever) {
       // Permissions are denied forever, handle appropriately.
       return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.');
+          'Location permissions are permanently denied, we cannot request permissions.');
     }
 
     Position position = await Geolocator.getCurrentPosition(
@@ -80,7 +82,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     var longi = position.longitude;
     return ("$lati:$longi");
   }
-  
+
   Future _signUp(context) async {
     /// gets predicted data from facenet service (user face detected)
     List predictedData = _faceNetService.predictedData;
@@ -92,25 +94,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     /// creates a new user in the 'database'
     await _dataBaseService.saveData(user, password, predictedData);
 
-    /// PUSHING USER DATA INTO MYSQL DATABASE
-
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: 'remotemysql.com',
-        port: 3306,
-        user: 'cVLw2NAjNX',
-        db: 'cVLw2NAjNX',
-        password: '7I3RP65o9I',
-      ),
-    );
-
-    var result = await conn.query(
-      'insert into User_table (emp_id, name, email, password) values (?, ?, ?, ?)',
-      [empid, user, email, password],
-    );
-    print('Inserted row id=${result.insertId}');
-
-    await conn.close();
+    /// SIGN UP
+    await _sqlDatabaseService.signUp(empid, user, email, password);
 
     /// resets the face stored in the face net sevice
     this._faceNetService.setPredictedData(null);
@@ -121,33 +106,16 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   Future _signIn(context) async {
     String password = _passwordTextEditingController.text;
 
-    /// PUSHING LOGIN DATA INTO LOGS
-
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: 'remotemysql.com',
-        port: 3306,
-        user: 'cVLw2NAjNX',
-        db: 'cVLw2NAjNX',
-        password: '7I3RP65o9I',
-      ),
-    );
-
     if (this.predictedUser.password == password) {
 
       /// fetching data from geolocator
       var loc = await getCurrentLocation();
-      print("loc");
+      print(loc);
       var lat = loc.split(":")[0];
       var lon = loc.split(":")[1];
 
-      var result = await conn.query(
-        'insert into Logs (name, lon, lat) values (?, ?, ?)',
-        [this.predictedUser.user, lon, lat],
-      );
-
-      print('Inserted row id=${result.insertId}');
-      await conn.close();
+      /// SIGN IN
+      await _sqlDatabaseService.signIn(this.predictedUser.user, lon, lat);
 
       Navigator.push(
         context,
@@ -159,8 +127,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
           ),
         ),
       );
-      /// LOGS DONE
-    } else {
+    }
+    else {
       showDialog(
         context: context,
         builder: (context) {
@@ -315,15 +283,15 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                       )
                     : !widget.isLogin
                         ? AppButton(
-                            text: 'SIGN UP',
-                            onPressed: () async {
-                              await _signUp(context);
-                            },
-                            icon: Icon(
-                              Icons.person_add,
-                              color: Colors.white,
-                            ),
-                          )
+                          text: 'SIGN UP',
+                          onPressed: () async {
+                            await _signUp(context);
+                          },
+                          icon: Icon(
+                            Icons.person_add,
+                            color: Colors.white,
+                          ),
+                        )
                         : Container(),
               ],
             ),

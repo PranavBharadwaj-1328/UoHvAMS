@@ -203,6 +203,12 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                         ),
+                        Text(
+                          'One time registration only!',
+                          style: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
                       ],
                     )
                   ],
