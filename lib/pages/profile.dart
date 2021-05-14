@@ -1,17 +1,14 @@
 import 'dart:io';
 import 'dart:math';
-
 import 'package:face_net_authentication/pages/widgets/app_button.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'home.dart';
 import 'dart:math' as math;
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_geofence/geofence.dart';
 import 'package:intl/intl.dart';
+import 'package:mysql1/mysql1.dart';
 
-// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Profile extends StatefulWidget {
   const Profile(this.username, this.location, {Key key, this.imagePath})
@@ -62,28 +59,20 @@ class _ProfileState extends State<Profile> {
     //       "Your latitude is ${coordinate.latitude} and longitude ${coordinate.longitude}");
     // });
 
-    Geofence.startListening(GeolocationEvent.entry, (entry) async {
-      print(entry.id);
-      scheduleNotification("Entry of a georegion", "Welcome to: ${entry.id}");
-
-      // TODO send to db
-    });
-
-    Geofence.startListening(GeolocationEvent.exit, (entry) async {
-      print(entry.id);
-      scheduleNotification("Exit of a georegion", "Byebye to: ${entry.id}");
-
-      // TODO send to db
-    });
-
-    Geolocation sirLocation = Geolocation(
+    Geolocation location0 = Geolocation(
         latitude: _latitude, longitude: _longitude, radius: 10, id: "NKS home");
 
     // rohan home for demo reasons
     Geolocation location = Geolocation(
-      latitude: 17.5036619,
-      longitude: 78.3568218,
-      radius: 10.0,
+      latitude: 17.397909,
+      longitude: 78.5199671,
+      radius: 5.0,
+      id: "PB Home",
+    );
+    Geolocation location2 = Geolocation(
+      latitude: 17.397909,
+      longitude: 78.5199671,
+      radius: 5.0,
       id: "Rohan Home",
     );
 
@@ -105,6 +94,55 @@ class _ProfileState extends State<Profile> {
         "You moved significantly",
         "a significant location change just happened.",
       );
+    });
+    Geofence.startListening(GeolocationEvent.entry, (entry) async {
+      print(entry.id);
+      scheduleNotification("Entry of a georegion", "Welcome to: ${entry.id}");
+      // TODO send to db
+      final conn = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: 'remotemysql.com',
+          port: 3306,
+          user: 'cVLw2NAjNX',
+          db: 'cVLw2NAjNX',
+          password: '7I3RP65o9I',
+        ),
+      );
+
+      var result = await conn.query(
+        'insert into Geo_logs (name, loc_id, in_out) values ( ?, ?)',
+        [widget.username, entry.id, "i"],
+      );
+      print('Inserted row id=${result.insertId}');
+
+      await conn.close();
+    });
+
+    Geofence.startListening(GeolocationEvent.exit, (entry) async {
+      print(entry.id);
+      scheduleNotification("Exit of a georegion", "Byebye to: ${entry.id}");
+      // TODO send to db
+      final conn = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: 'remotemysql.com',
+          port: 3306,
+          user: 'cVLw2NAjNX',
+          db: 'cVLw2NAjNX',
+          password: '7I3RP65o9I',
+        ),
+      );
+
+      var result = await conn.query(
+        'insert into Geo_logs (name, loc_id, in_out) values ( ?, ?)',
+        [widget.username, entry.id, "o"],
+      );
+      print('Inserted row id=${result.insertId}');
+
+      await conn.close();
+//      Navigator.push(
+//        context,
+//        MaterialPageRoute(builder: (context) => MyHomePage()),
+//      );
     });
 
     setState(() {});
@@ -192,33 +230,33 @@ class _ProfileState extends State<Profile> {
                   ],
                 ),
               ),
-              Column(
-                children: [
-                  ElevatedButton(
-                    child: Text("Listen to background updates"),
-                    onPressed: () {
-                      Geofence.startListeningForLocationChanges();
-                      Geofence.backgroundLocationUpdated.stream.listen((event) {
-                        scheduleNotification("You moved significantly",
-                            "a significant location change just happened.");
-                      });
-                    },
-                  ),
-                  ElevatedButton(
-                    child: Text("Stop listening to background updates"),
-                    onPressed: () {
-                      Geofence.stopListeningForLocationChanges();
-                    },
-                  ),
-                  ElevatedButton(
-                    child: Text("Checking to see if notifications are working"),
-                    onPressed: () {
-                      scheduleNotification("Demo",
-                            "demo message");
-                    },
-                  ),
-                ],
-              ),
+//              Column(
+//                children: [
+//                  ElevatedButton(
+//                    child: Text("Listen to background updates"),
+//                    onPressed: () {
+//                      Geofence.startListeningForLocationChanges();
+//                      Geofence.backgroundLocationUpdated.stream.listen((event) {
+//                        scheduleNotification("You moved significantly",
+//                            "a significant location change just happened.");
+//                      });
+//                    },
+//                  ),
+//                  ElevatedButton(
+//                    child: Text("Stop listening to background updates"),
+//                    onPressed: () {
+//                      Geofence.stopListeningForLocationChanges();
+//                    },
+//                  ),
+//                  ElevatedButton(
+//                    child: Text("Checking to see if notifications are working"),
+//                    onPressed: () {
+//                      scheduleNotification("Demo",
+//                            "demo message");
+//                    },
+//                  ),
+//                ],
+//              ),
               Spacer(),
               AppButton(
                 text: "Leave",
