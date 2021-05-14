@@ -57,4 +57,18 @@ class SqlDatabaseService {
     print("signin done");
   }
 
+  /// GEO FENCING LOGS
+
+  Future<void> logGeoFence(String user, String entryId, String entryOrExit) async {
+    print("logging geo-fence updates");
+    MySqlConnection conn = await connect();
+
+    var result = await conn.query(
+      'insert into Geo_logs (name, loc_id, in_out) values (?, ?, ?)',
+      [user, entryId, entryOrExit],
+    );
+
+    print('Inserted row id=${result.insertId}');
+    await conn.close();
+  }
 }
