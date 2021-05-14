@@ -71,7 +71,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     }
 
     Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best);
+        desiredAccuracy: LocationAccuracy.bestForNavigation);
     // Position lastPosition = await Geolocator.getLastKnownPosition();
     // bool geolocationStatus = await Geolocator.isLocationServiceEnabled();
     // print("Status : $geolocationStatus");

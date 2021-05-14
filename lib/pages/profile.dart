@@ -39,7 +39,7 @@ class _ProfileState extends State<Profile> {
 
 // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     var initializationSettingsAndroid =
-        new AndroidInitializationSettings('app_icon');
+        new AndroidInitializationSettings('@mipmap/ic_launcher');
     var initializationSettingsIOS =
         IOSInitializationSettings(onDidReceiveLocalNotification: null);
     var initializationSettings = InitializationSettings(
@@ -87,8 +87,8 @@ class _ProfileState extends State<Profile> {
       id: "Rohan Home",
     );
 
-    // Geofence.addGeolocation(location, GeolocationEvent.entry).then((onValue) {
-    Geofence.addGeolocation(sirLocation, GeolocationEvent.entry).then((onValue) {
+    Geofence.addGeolocation(location, GeolocationEvent.entry).then((onValue) {
+    // Geofence.addGeolocation(sirLocation, GeolocationEvent.entry).then((onValue) {
       print("great success");
       scheduleNotification(
         "Georegion added",
