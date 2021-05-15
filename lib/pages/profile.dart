@@ -47,7 +47,7 @@ class _ProfileState extends State<Profile> {
 
     _geoRegionInitialize.addGeoRegions();
 
-    Geofence.startListeningForLocationChanges();
+    await Geofence.startListeningForLocationChanges();
     Geofence.backgroundLocationUpdated.stream.listen((event) async {
       print(event.toString());
       _notificationService.scheduleNotification(
@@ -140,6 +140,14 @@ class _ProfileState extends State<Profile> {
                     )
                   ],
                 ),
+              ),
+              AppButton(
+                text: "get current location",
+                onPressed: (){
+                  Geofence.getCurrentLocation().then((coordinate) {
+                    _notificationService.scheduleNotification ("Your latitude is ${coordinate.latitude}", "and longitude is ${coordinate.longitude}");
+                  });
+                },
               ),
               Spacer(),
               AppButton(
