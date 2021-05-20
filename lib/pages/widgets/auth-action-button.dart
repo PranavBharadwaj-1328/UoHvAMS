@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:face_net_authentication/pages/db/database.dart';
 import 'package:face_net_authentication/pages/models/user.model.dart';
@@ -39,39 +38,39 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   final TextEditingController _userEmailEditingController =
       TextEditingController(text: '');
   User predictedUser;
-
+  String lat;
+  String lon;
   List<Map<String, dynamic>> geoRegions = [
-      {
-        "latitude": 17.4301783,
-        "longitude": 78.5421611,
-        "radius": 20.0,
-        "id": "NKS home",
-      },
-      {
-        "latitude": 17.397909,
-        "longitude": 78.5199671,
-        "radius": 5.0,
-        "id": "PB Home",
-      },
-      {
-        "latitude": 17.503565,
-        "longitude": 78.356778,
-        "radius": 20.0,
-        "id": "Rohan Home",
-      },
-      {
-        "latitude": 17.504054,
-        "longitude": 78.357531,
-        "radius": 20.0,
-        "id": "Rohan Neighbour",
-      }
-    ];
+    {
+      "latitude": 17.4301783,
+      "longitude": 78.5421611,
+      "radius": 25.0,
+      "id": "NKS home",
+    },
+    {
+      "latitude": 17.397909,
+      "longitude": 78.5199671,
+      "radius": 5.0,
+      "id": "PB Home",
+    },
+    {
+      "latitude": 17.503565,
+      "longitude": 78.356778,
+      "radius": 20.0,
+      "id": "Rohan Home",
+    },
+    {
+      "latitude": 17.504054,
+      "longitude": 78.357531,
+      "radius": 20.0,
+      "id": "Rohan Neighbour",
+    }
+  ];
 
   /// GET LOCATION USING GEO LOCATOR
   Future<Map<String, dynamic>> getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
-
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       return Future.error('Location services are disabled.');
@@ -94,17 +93,18 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         desiredAccuracy: LocationAccuracy.bestForNavigation);
     var lati = position.latitude;
     var longi = position.longitude;
-
-    for (Map<String, dynamic> geoRegion in geoRegions)
-    {
-      if (Geolocator.distanceBetween(lati, longi ,geoRegion["latitude"],geoRegion["longitude"]) < geoRegion["radius"]) {
+    lat = lati.toString();
+    lon = longi.toString();
+    for (Map<String, dynamic> geoRegion in geoRegions) {
+      if (Geolocator.distanceBetween(
+              lati, longi, geoRegion["latitude"], geoRegion["longitude"]) <
+          geoRegion["radius"]) {
         // TODO clean this
         return (geoRegion);
       }
     }
 
     return null;
-    // return ("$lati:$longi");
   }
 
   Future _signUp(context) async {
@@ -130,9 +130,9 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   Future _signIn(context) async {
     String password = _passwordTextEditingController.text;
     var geoRegion = await getCurrentLocation();
-    if (this.predictedUser.password == password && geoRegion != null) {
-      _sqlDatabaseService.signIn(this.predictedUser.user, geoRegion["longitude"].toString(), geoRegion["lattitude"].toString());
-      _sqlDatabaseService.logGeoFence(this.predictedUser.user, geoRegion["id"], "i");
+    if (this.predictedUser.password == password) {
+      await _sqlDatabaseService.signIn(this.predictedUser.user, lon, lat);
+      //_sqlDatabaseService.logGeoFence(this.predictedUser.user, geoRegion["id"], "i");
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -143,13 +143,12 @@ class _AuthActionButtonState extends State<AuthActionButton> {
           ),
         ),
       );
-    }
-    else {
+    } else {
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            content: Text('Wrong password!'),
+            content: Text('Wrong password! or Not in location'),
           );
         },
       );
@@ -298,15 +297,15 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                       )
                     : !widget.isLogin
                         ? AppButton(
-                          text: 'SIGN UP',
-                          onPressed: () async {
-                            await _signUp(context);
-                          },
-                          icon: Icon(
-                            Icons.person_add,
-                            color: Colors.white,
-                          ),
-                        )
+                            text: 'SIGN UP',
+                            onPressed: () async {
+                              await _signUp(context);
+                            },
+                            icon: Icon(
+                              Icons.person_add,
+                              color: Colors.white,
+                            ),
+                          )
                         : Container(),
               ],
             ),

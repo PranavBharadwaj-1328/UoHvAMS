@@ -13,13 +13,11 @@ import 'package:intl/intl.dart';
 class Profile extends StatefulWidget {
   /// doubt doubt
   // const Profile(this.username, this.location, this.geoRegion {Key key, this.imagePath})
-  const Profile(this.username, this.geoRegion, {Key key, this.imagePath})
+  const Profile(this.username, this.location, {Key key, this.imagePath})
       : super(key: key);
   final String username;
   final String imagePath;
-
-  // TODO
-  final Map<String, dynamic> geoRegion;
+  final Map<String, dynamic> location;
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -28,7 +26,32 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   String _platformVersion = 'Unknown';
   String position = "";
-
+  List<Map<String, dynamic>> geoRegions = [
+    {
+      "latitude": 17.4301783,
+      "longitude": 78.5421611,
+      "radius": 25.0,
+      "id": "NKS home",
+    },
+    {
+      "latitude": 17.397909,
+      "longitude": 78.5199671,
+      "radius": 5.0,
+      "id": "PB Home",
+    },
+    {
+      "latitude": 17.503565,
+      "longitude": 78.356778,
+      "radius": 20.0,
+      "id": "Rohan Home",
+    },
+    {
+      "latitude": 17.504054,
+      "longitude": 78.357531,
+      "radius": 20.0,
+      "id": "Rohan Neighbour",
+    }
+  ];
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       new FlutterLocalNotificationsPlugin();
 
@@ -38,7 +61,8 @@ class _ProfileState extends State<Profile> {
   void _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
-
+    // Map<String, dynamic> geolocale = widget.location;
+    // bool notInAnyRegion = true;
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       return Future.error('Location services are disabled.');
@@ -56,37 +80,48 @@ class _ProfileState extends State<Profile> {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-
-    // StreamSubscription<Position> positionStream =
+    String oldLoc = "Unknown";
+    String newLoc = "Unknown";
     Geolocator.getPositionStream(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
       // timeLimit: Duration(seconds: 2),
     ).listen(
-      (Position position) {
+      (Position position) async {
         if (position == null) {
           print('Unknown');
-        } else {
-          print(
-            position.latitude.toString() + ', ' + position.longitude.toString(),
-          );
           setState(() {
-            this.position = position.latitude.toString() +
-                ', ' +
-                position.longitude.toString();
+            this.position = "Unknown";
           });
-
-          if (Geolocator.distanceBetween(position.latitude, position.longitude,
-                  widget.geoRegion["latitude"], widget.geoRegion["longitude"]) >
-              widget.geoRegion["radius"]) {
-            _sqlDatabaseService.logGeoFence(
-                widget.username, widget.geoRegion["id"], "o");
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => MyHomePage()),
-            );
+        } else {
+          // /// brrr
+          bool flag = true;
+          for (Map<String, dynamic> geoRegion in geoRegions) {
+            if (Geolocator.distanceBetween(
+                position.latitude,
+                position.longitude,
+                geoRegion["latitude"],
+                geoRegion["longitude"]) <
+                geoRegion["radius"]) {
+              newLoc = geoRegion["id"];
+              flag = false;
+              break;
+            }
+          }
+          if (flag) {
+            newLoc = "Unknown";
           }
 
+          if (oldLoc != newLoc) {
+            if (newLoc == "Unknown") {
+              await _sqlDatabaseService.logGeoFence(widget.username, oldLoc, "o");
+            } else {
+              await _sqlDatabaseService.logGeoFence(widget.username, newLoc, "i");
+            }
+            oldLoc = newLoc;
+            setState(() {
+              this.position = newLoc;
+            });
+          }
         }
       },
     );
@@ -157,11 +192,13 @@ class _ProfileState extends State<Profile> {
                     ),
                     Text(
                       'Your attendance has been registered at the following location: ' +
-                          widget.geoRegion["id"],
+                          this.position,
                       style: TextStyle(fontSize: 16),
                       textAlign: TextAlign.left,
                     ),
-                    SizedBox(height: 10,),
+                    SizedBox(
+                      height: 10,
+                    ),
                     Text(
                       'Your current location: ' + this.position,
                       style: TextStyle(fontSize: 16),
