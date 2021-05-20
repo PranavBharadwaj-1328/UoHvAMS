@@ -11,11 +11,16 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 
 class Profile extends StatefulWidget {
-  const Profile(this.username, this.location, {Key key, this.imagePath})
+  /// doubt doubt
+  // const Profile(this.username, this.location, this.geoRegion {Key key, this.imagePath})
+  const Profile(this.username, this.geoRegion, {Key key, this.imagePath})
       : super(key: key);
   final String username;
-  final String location;
+  // final String location;
   final String imagePath;
+
+  // TODO
+  final Map<String, dynamic> geoRegion;
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -23,6 +28,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   String _platformVersion = 'Unknown';
+  String position = "";
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       new FlutterLocalNotificationsPlugin();
@@ -58,12 +64,40 @@ class _ProfileState extends State<Profile> {
       // timeLimit: Duration(seconds: 2),
     ).listen(
       (Position position) {
-        print(position == null
-            ? 'Unknown'
-            : position.latitude.toString() + ', ' + position.longitude.toString(),
-        );
+        if (position == null) {
+          print('Unknown');
+        } else {
+          print(
+            position.latitude.toString() + ', ' + position.longitude.toString(),
+          );
+          setState(() {
+            this.position = position.latitude.toString() +
+                ', ' +
+                position.longitude.toString();
+          });
+
+          if (Geolocator.distanceBetween(position.latitude, position.longitude,
+                  widget.geoRegion["latitude"], widget.geoRegion["longitude"]) >
+              widget.geoRegion["radius"]) {
+            _sqlDatabaseService.logGeoFence(
+                widget.username, widget.geoRegion["id"], "o");
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MyHomePage()),
+            );
+          }
+
+        }
       },
     );
+
+    //
+    // void _entry(Map<String, dynamic> geoRegion) {
+    //   /// push into logs later
+    //
+    //
+    // }
 
     // return await Geolocator.getCurrentPosition();
   }
@@ -133,7 +167,13 @@ class _ProfileState extends State<Profile> {
                     ),
                     Text(
                       'Your attendance has been registered at the following location: ' +
-                          widget.location,
+                          widget.geoRegion["id"],
+                      style: TextStyle(fontSize: 16),
+                      textAlign: TextAlign.left,
+                    ),
+                    SizedBox(height: 10,),
+                    Text(
+                      'Your current location: ' + this.position,
                       style: TextStyle(fontSize: 16),
                       textAlign: TextAlign.left,
                     )

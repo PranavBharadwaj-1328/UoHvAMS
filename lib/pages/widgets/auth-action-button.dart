@@ -40,8 +40,35 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       TextEditingController(text: '');
   User predictedUser;
 
+  List<Map<String, dynamic>> geoRegions = [
+      {
+        "latitude": 17.4301783,
+        "longitude": 78.5421611,
+        "radius": 20.0,
+        "id": "NKS home",
+      },
+      {
+        "latitude": 17.397909,
+        "longitude": 78.5199671,
+        "radius": 20.0,
+        "id": "PB Home",
+      },
+      {
+        "latitude": 17.503565,
+        "longitude": 78.356778,
+        "radius": 20.0,
+        "id": "Rohan Home",
+      },
+      {
+        "latitude": 17.504054,
+        "longitude": 78.357531,
+        "radius": 20.0,
+        "id": "Rohan Neighbour",
+      }
+    ];
+
   /// GET LOCATION USING GEO LOCATOR
-  Future<String> getCurrentLocation() async {
+  Future<Map<String, dynamic>> getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -67,7 +94,19 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         desiredAccuracy: LocationAccuracy.bestForNavigation);
     var lati = position.latitude;
     var longi = position.longitude;
-    return ("$lati:$longi");
+
+    for (Map<String, dynamic> geoRegion in geoRegions)
+    {
+      if (Geolocator.distanceBetween(lati, longi ,geoRegion["latitude"],geoRegion["longitude"]) < geoRegion["radius"]) {
+        _sqlDatabaseService.logGeoFence(this.predictedUser.user, geoRegion["id"], "i");
+
+        // TODO clean this
+        return (geoRegion);
+      }
+    }
+
+    return null;
+    // return ("$lati:$longi");
   }
 
   Future _signUp(context) async {
@@ -96,20 +135,23 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     if (this.predictedUser.password == password) {
 
       /// fetching data from geolocator
-      var loc = await getCurrentLocation();
-      print(loc);
-      var lat = loc.split(":")[0];
-      var lon = loc.split(":")[1];
+      // var loc = await getCurrentLocation();
+      var geoRegion = await getCurrentLocation();
+      // print(loc);
+      // var lat = loc.split(":")[0];
+      // var lon = loc.split(":")[1];
 
       /// SIGN IN
-      await _sqlDatabaseService.signIn(this.predictedUser.user, lon, lat);
+      /// DOUBT DOUBT
+      // await _sqlDatabaseService.signIn(this.predictedUser.user, lon, lat);
 
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (BuildContext context) => Profile(
             this.predictedUser.user,
-            loc,
+            // loc,
+            geoRegion,
             imagePath: _cameraService.imagePath,
           ),
         ),
