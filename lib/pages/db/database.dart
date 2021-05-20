@@ -21,6 +21,17 @@ class DataBaseService {
   Map<String, dynamic> _db = Map<String, dynamic>();
   Map<String, dynamic> get db => this._db;
 
+  /// checks if json file exists or not
+  Future checkDB() async {
+    var tempDir = await getApplicationDocumentsDirectory();
+    String _embPath = tempDir.path + '/emb.json';
+    jsonFile = new File(_embPath);
+
+    if (jsonFile.existsSync()) {
+      return json.decode(jsonFile.readAsStringSync()).toString() == "{}" ? false : true;
+    } else return false;
+  }
+
   /// loads a simple json file.
   Future loadDB() async {
     var tempDir = await getApplicationDocumentsDirectory();
