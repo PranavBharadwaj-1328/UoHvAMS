@@ -25,7 +25,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   String _platformVersion = 'Unknown';
-  String position = "";
+  String position = "Unknown";
   List<Map<String, dynamic>> geoRegions = [
     {
       "latitude": 17.4301783,
@@ -58,11 +58,13 @@ class _ProfileState extends State<Profile> {
   final SqlDatabaseService _sqlDatabaseService = SqlDatabaseService();
   NotificationService _notificationService;
 
+
+  /// LIVE LOCATION AND GEOFENCING FUNCTION
+
   void _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
-    // Map<String, dynamic> geolocale = widget.location;
-    // bool notInAnyRegion = true;
+
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       return Future.error('Location services are disabled.');
@@ -93,7 +95,7 @@ class _ProfileState extends State<Profile> {
             this.position = "Unknown";
           });
         } else {
-          // /// brrr
+
           bool flag = true;
           for (Map<String, dynamic> geoRegion in geoRegions) {
             if (Geolocator.distanceBetween(
@@ -114,8 +116,16 @@ class _ProfileState extends State<Profile> {
           if (oldLoc != newLoc) {
             if (newLoc == "Unknown") {
               await _sqlDatabaseService.logGeoFence(widget.username, oldLoc, "o");
+              _notificationService.scheduleNotification(
+                "Exit $oldLoc!",
+                "You just left $oldLoc.",
+              );
             } else {
               await _sqlDatabaseService.logGeoFence(widget.username, newLoc, "i");
+              _notificationService.scheduleNotification(
+                "Entered $newLoc!",
+                "Your attendance at $newLoc has been noted!",
+              );
             }
             oldLoc = newLoc;
             setState(() {
@@ -130,10 +140,11 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
-    _determinePosition();
 
     _notificationService = NotificationService(flutterLocalNotificationsPlugin);
     _notificationService.notificationInitialize();
+
+    _determinePosition();
   }
 
   @override
@@ -159,13 +170,6 @@ class _ProfileState extends State<Profile> {
                     margin: EdgeInsets.all(20),
                     width: 50,
                     height: 50,
-                    // child: Transform(
-                    //     alignment: Alignment.center,
-                    //     child: FittedBox(
-                    //       fit: BoxFit.cover,
-                    //       child: Image.file(File(imagePath)),
-                    //     ),
-                    //     transform: Matrix4.rotationY(mirror)),
                   ),
                   Text(
                     'Hi ' + widget.username + '!',
@@ -191,8 +195,8 @@ class _ProfileState extends State<Profile> {
                       height: 10,
                     ),
                     Text(
-                      'Your attendance has been registered at the following location: ' +
-                          this.position,
+                      'Your attendance has been registered at ' +
+                          (widget.location == null ? "Unknown location" : widget.location["id"]),
                       style: TextStyle(fontSize: 16),
                       textAlign: TextAlign.left,
                     ),

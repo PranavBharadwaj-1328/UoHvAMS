@@ -99,7 +99,6 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       if (Geolocator.distanceBetween(
               lati, longi, geoRegion["latitude"], geoRegion["longitude"]) <
           geoRegion["radius"]) {
-        // TODO clean this
         return (geoRegion);
       }
     }
@@ -132,7 +131,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     var geoRegion = await getCurrentLocation();
     if (this.predictedUser.password == password) {
       await _sqlDatabaseService.signIn(this.predictedUser.user, lon, lat);
-      //_sqlDatabaseService.logGeoFence(this.predictedUser.user, geoRegion["id"], "i");
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -148,7 +147,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            content: Text('Wrong password! or Not in location'),
+            content: Text('Wrong password!'),
           );
         },
       );
