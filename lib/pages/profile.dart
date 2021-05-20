@@ -16,7 +16,6 @@ class Profile extends StatefulWidget {
   const Profile(this.username, this.geoRegion, {Key key, this.imagePath})
       : super(key: key);
   final String username;
-  // final String location;
   final String imagePath;
 
   // TODO
@@ -91,15 +90,6 @@ class _ProfileState extends State<Profile> {
         }
       },
     );
-
-    //
-    // void _entry(Map<String, dynamic> geoRegion) {
-    //   /// push into logs later
-    //
-    //
-    // }
-
-    // return await Geolocator.getCurrentPosition();
   }
 
   @override

@@ -50,7 +50,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       {
         "latitude": 17.397909,
         "longitude": 78.5199671,
-        "radius": 20.0,
+        "radius": 5.0,
         "id": "PB Home",
       },
       {
@@ -98,8 +98,6 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     for (Map<String, dynamic> geoRegion in geoRegions)
     {
       if (Geolocator.distanceBetween(lati, longi ,geoRegion["latitude"],geoRegion["longitude"]) < geoRegion["radius"]) {
-        _sqlDatabaseService.logGeoFence(this.predictedUser.user, geoRegion["id"], "i");
-
         // TODO clean this
         return (geoRegion);
       }
@@ -131,26 +129,15 @@ class _AuthActionButtonState extends State<AuthActionButton> {
 
   Future _signIn(context) async {
     String password = _passwordTextEditingController.text;
-
-    if (this.predictedUser.password == password) {
-
-      /// fetching data from geolocator
-      // var loc = await getCurrentLocation();
-      var geoRegion = await getCurrentLocation();
-      // print(loc);
-      // var lat = loc.split(":")[0];
-      // var lon = loc.split(":")[1];
-
-      /// SIGN IN
-      /// DOUBT DOUBT
-      // await _sqlDatabaseService.signIn(this.predictedUser.user, lon, lat);
-
+    var geoRegion = await getCurrentLocation();
+    if (this.predictedUser.password == password && geoRegion != null) {
+      _sqlDatabaseService.signIn(this.predictedUser.user, geoRegion["longitude"].toString(), geoRegion["lattitude"].toString());
+      _sqlDatabaseService.logGeoFence(this.predictedUser.user, geoRegion["id"], "i");
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (BuildContext context) => Profile(
             this.predictedUser.user,
-            // loc,
             geoRegion,
             imagePath: _cameraService.imagePath,
           ),
