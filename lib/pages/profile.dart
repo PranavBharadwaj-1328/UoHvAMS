@@ -1,14 +1,14 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:face_net_authentication/pages/widgets/app_button.dart';
 import 'package:flutter/material.dart';
 import './db/sqldb.dart';
-import '../services/georegion.service.dart';
 import '../services/notification.service.dart';
 import 'home.dart';
 import 'dart:math' as math;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_geofence/geofence.dart';
-import 'dart:async';
+import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 
 class Profile extends StatefulWidget {
   const Profile(this.username, this.location, {Key key, this.imagePath})
@@ -28,54 +28,53 @@ class _ProfileState extends State<Profile> {
       new FlutterLocalNotificationsPlugin();
 
   final SqlDatabaseService _sqlDatabaseService = SqlDatabaseService();
-  final GeoRegionInitialize _geoRegionInitialize = GeoRegionInitialize();
   NotificationService _notificationService;
+
+  void _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // StreamSubscription<Position> positionStream =
+    Geolocator.getPositionStream(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+      // timeLimit: Duration(seconds: 2),
+    ).listen(
+      (Position position) {
+        print(position == null
+            ? 'Unknown'
+            : position.latitude.toString() + ', ' + position.longitude.toString(),
+        );
+      },
+    );
+
+    // return await Geolocator.getCurrentPosition();
+  }
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    _determinePosition();
+
     _notificationService = NotificationService(flutterLocalNotificationsPlugin);
     _notificationService.notificationInitialize();
-  }
-
-  Future<void> initPlatformState() async {
-    if (!mounted) return;
-    Geofence.initialize();
-    Geofence.requestPermissions();
-
-    _geoRegionInitialize.addGeoRegions();
-
-
-    await Geofence.startListeningForLocationChanges();
-    Geofence.backgroundLocationUpdated.stream.listen((event) async {
-      print(event.toString());
-      _notificationService.scheduleNotification(
-        "You moved significantly",
-        "a significant location change just happened.",
-      );
-    });
-
-    Geofence.startListening(GeolocationEvent.entry, (entry) async {
-      print(entry.id);
-      _notificationService.scheduleNotification("Entry of a georegion", "Welcome to: ${entry.id}");
-
-      await _sqlDatabaseService.logGeoFence(widget.username, entry.id, "i");
-    });
-
-    Geofence.startListening(GeolocationEvent.exit, (entry) async {
-      print(entry.id);
-      _notificationService.scheduleNotification("Exit of a georegion", "Byebye to: ${entry.id}");
-
-      await _sqlDatabaseService.logGeoFence(widget.username, entry.id, "o");
-
-//      Navigator.push(
-//        context,
-//        MaterialPageRoute(builder: (context) => MyHomePage()),
-//      );
-    });
-
-    setState(() {});
   }
 
   @override
@@ -140,14 +139,6 @@ class _ProfileState extends State<Profile> {
                     )
                   ],
                 ),
-              ),
-              AppButton(
-                text: "get current location",
-                onPressed: (){
-                  Geofence.getCurrentLocation().then((coordinate) {
-                    _notificationService.scheduleNotification ("Your latitude is ${coordinate.latitude}", "and longitude is ${coordinate.longitude}");
-                  });
-                },
               ),
               Spacer(),
               AppButton(
