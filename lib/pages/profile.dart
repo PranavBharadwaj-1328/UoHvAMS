@@ -8,7 +8,7 @@ import 'home.dart';
 import 'dart:math' as math;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_geofence/geofence.dart';
-import 'package:intl/intl.dart';
+import 'dart:async';
 
 class Profile extends StatefulWidget {
   const Profile(this.username, this.location, {Key key, this.imagePath})
@@ -35,7 +35,6 @@ class _ProfileState extends State<Profile> {
   void initState() {
     super.initState();
     initPlatformState();
-
     _notificationService = NotificationService(flutterLocalNotificationsPlugin);
     _notificationService.notificationInitialize();
   }
@@ -46,6 +45,7 @@ class _ProfileState extends State<Profile> {
     Geofence.requestPermissions();
 
     _geoRegionInitialize.addGeoRegions();
+
 
     await Geofence.startListeningForLocationChanges();
     Geofence.backgroundLocationUpdated.stream.listen((event) async {
