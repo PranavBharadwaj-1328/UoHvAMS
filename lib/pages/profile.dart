@@ -8,7 +8,6 @@ import 'home.dart';
 import 'dart:math' as math;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:intl/intl.dart';
 
 class Profile extends StatefulWidget {
   /// doubt doubt
