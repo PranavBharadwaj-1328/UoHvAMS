@@ -57,8 +57,14 @@ class _ProfileState extends State<Profile> {
 
   final SqlDatabaseService _sqlDatabaseService = SqlDatabaseService();
   NotificationService _notificationService;
-
-
+  /// Logout function
+  Future<void> _logout() async{
+    await _sqlDatabaseService.signIn(widget.username, "o");
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MyHomePage()),
+    );
+  }
   /// LIVE LOCATION AND GEOFENCING FUNCTION
 
   void _determinePosition() async {
@@ -215,10 +221,7 @@ class _ProfileState extends State<Profile> {
               AppButton(
                 text: "Leave",
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MyHomePage()),
-                  );
+                  _logout();
                 },
                 icon: Icon(
                   Icons.logout,

@@ -44,27 +44,9 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     {
       "latitude": 17.4301783,
       "longitude": 78.5421611,
-      "radius": 25.0,
-      "id": "NKS home",
+      "radius": 30000.0,
+      "id": "Campus",
     },
-    {
-      "latitude": 17.397909,
-      "longitude": 78.5199671,
-      "radius": 5.0,
-      "id": "PB Home",
-    },
-    {
-      "latitude": 17.503565,
-      "longitude": 78.356778,
-      "radius": 20.0,
-      "id": "Rohan Home",
-    },
-    {
-      "latitude": 17.504054,
-      "longitude": 78.357531,
-      "radius": 20.0,
-      "id": "Rohan Neighbour",
-    }
   ];
 
   /// GET LOCATION USING GEO LOCATOR
@@ -129,8 +111,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   Future _signIn(context) async {
     String password = _passwordTextEditingController.text;
     var geoRegion = await getCurrentLocation();
-    if (this.predictedUser.password == password) {
-      await _sqlDatabaseService.signIn(this.predictedUser.user, lon, lat);
+    if (this.predictedUser.password == password && geoRegion != null) {
+      await _sqlDatabaseService.signIn(this.predictedUser.user, "i");
 
       Navigator.push(
         context,

@@ -42,13 +42,13 @@ class SqlDatabaseService {
   }
 
   /// SIGN IN
-  Future<void> signIn(String user, String lon, String lat ) async {
+  Future<void> signIn(String user, String io) async {
     print("signin");
     MySqlConnection conn = await connect();
 
     var result = await conn.query(
-      'insert into Logs (name, lon, lat) values (?, ?, ?)',
-      [user, lon, lat],
+      'insert into Logs (name, in_out) values (?, ?)',
+      [user, io],
     );
 
     print('Inserted row id=${result.insertId}');
