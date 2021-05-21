@@ -39,6 +39,7 @@ class SqlDatabaseService {
 
     await conn.close();
     print("signup done");
+    return;
   }
 
   /// SIGN IN
@@ -55,6 +56,7 @@ class SqlDatabaseService {
 
     await conn.close();
     print("signin done");
+    return;
   }
 
   /// GEO FENCING LOGS
@@ -70,5 +72,6 @@ class SqlDatabaseService {
 
     print('Inserted row id=${result.insertId}');
     await conn.close();
+    return;
   }
 }

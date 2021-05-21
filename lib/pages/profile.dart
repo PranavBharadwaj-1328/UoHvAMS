@@ -49,7 +49,19 @@ class _ProfileState extends State<Profile> {
       "longitude": 78.357531,
       "radius": 20.0,
       "id": "Rohan Neighbour",
-    }
+    },
+    {
+      "latitude": 17.402356305545407,
+      "longitude": 78.44378929717998,
+      "radius": 50.0,
+      "id": "Salman sir",
+    },
+    {
+      "latitude": 17.487547926446105,
+      "longitude": 78.31434161006122,
+      "radius": 50.0,
+      "id": "Satish sir",
+    },
   ];
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       new FlutterLocalNotificationsPlugin();
@@ -91,7 +103,7 @@ class _ProfileState extends State<Profile> {
     String newLoc = "Unknown";
     Geolocator.getPositionStream(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
-      // timeLimit: Duration(seconds: 2),
+      intervalDuration: Duration(seconds: 15),
     ).listen(
       (Position position) async {
         if (position == null) {

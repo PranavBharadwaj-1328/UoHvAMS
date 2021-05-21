@@ -220,7 +220,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                   color: Colors.red,
                                 ),
                               )
-                            : SizedBox(),
+                            : Text(
+                                'Already registered!',
+                                style: TextStyle(
+                                  color: Colors.green,
+                                ),
+                              ),
                         Divider(),
                       ],
                     )

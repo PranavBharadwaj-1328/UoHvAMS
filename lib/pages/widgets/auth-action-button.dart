@@ -42,8 +42,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   String lon;
   List<Map<String, dynamic>> geoRegions = [
     {
-      "latitude": 17.4301783,
-      "longitude": 78.5421611,
+      "latitude": 17.456900943260322,
+      "longitude": 78.3263732689548,
       "radius": 30000.0,
       "id": "Campus",
     },
