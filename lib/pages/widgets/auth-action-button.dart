@@ -145,31 +145,39 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   Future _signIn(context) async {
     String password = _passwordTextEditingController.text;
     var geoRegion = await getCurrentLocation(context);
-
-    // TODO : why geo region null??
-    // if (this.predictedUser.password == password && geoRegion != null) {
-    if (this.predictedUser.password == password) {
-      await _sqlDatabaseService.signIn(this.predictedUser.user, "i");
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => Profile(
-            this.predictedUser.user,
-            geoRegion,
-            imagePath: _cameraService.imagePath,
-          ),
-        ),
-      );
-    } else {
+    if (geoRegion == null) {
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            content: Text('Wrong password!'),
+            content: Text('Not in campus!'),
           );
         },
       );
+    } else {
+      if (this.predictedUser.password == password) {
+        await _sqlDatabaseService.signIn(this.predictedUser.user, "i");
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => Profile(
+              this.predictedUser.user,
+              geoRegion,
+              imagePath: _cameraService.imagePath,
+            ),
+          ),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text('Wrong password!'),
+            );
+          },
+        );
+      }
     }
   }
 
@@ -303,7 +311,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                 Divider(),
                 SizedBox(height: 10),
                 widget.isLogin && predictedUser != null
-                // TODO : add some loading indicator on click
+                    // TODO : add some loading indicator on click
                     ? AppButton(
                         text: 'LOGIN',
                         onPressed: () async {

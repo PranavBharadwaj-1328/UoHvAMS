@@ -11,7 +11,6 @@ import 'package:geolocator/geolocator.dart';
 
 class Profile extends StatefulWidget {
   /// doubt doubt
-  // const Profile(this.username, this.location, this.geoRegion {Key key, this.imagePath})
   const Profile(this.username, this.location, {Key key, this.imagePath})
       : super(key: key);
   final String username;
@@ -35,7 +34,7 @@ class _ProfileState extends State<Profile> {
     {
       "latitude": 17.397909,
       "longitude": 78.5199671,
-      "radius": 5.0,
+      "radius": 20.0,
       "id": "PB Home",
     },
     {
@@ -68,20 +67,25 @@ class _ProfileState extends State<Profile> {
 
   final SqlDatabaseService _sqlDatabaseService = SqlDatabaseService();
   NotificationService _notificationService;
+
   /// Logout function
-  Future<void> _logout() async{
+  Future<void> _logout() async {
     await _sqlDatabaseService.signIn(widget.username, "o");
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => MyHomePage()),
     );
+    return;
   }
+
   /// LIVE LOCATION AND GEOFENCING FUNCTION
 
   void _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
-
+    double campus_latitude = 17.456900943260322;
+    double campus_longitude = 78.3263732689548;
+    double campus_radius = 30000.0;
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       return Future.error('Location services are disabled.');
@@ -112,42 +116,50 @@ class _ProfileState extends State<Profile> {
             this.position = "Unknown";
           });
         } else {
+          if (Geolocator.distanceBetween(position.latitude, position.longitude,
+                  campus_latitude, campus_longitude) <
+              campus_radius) {
+            bool flag = true;
+            for (Map<String, dynamic> geoRegion in geoRegions) {
+              if (Geolocator.distanceBetween(
+                      position.latitude,
+                      position.longitude,
+                      geoRegion["latitude"],
+                      geoRegion["longitude"]) <
+                  geoRegion["radius"]) {
+                newLoc = geoRegion["id"];
+                flag = false;
+                break;
+              }
+            }
+            if (flag) {
+              newLoc = "Unknown";
+            }
 
-          bool flag = true;
-          for (Map<String, dynamic> geoRegion in geoRegions) {
-            if (Geolocator.distanceBetween(
-                position.latitude,
-                position.longitude,
-                geoRegion["latitude"],
-                geoRegion["longitude"]) <
-                geoRegion["radius"]) {
-              newLoc = geoRegion["id"];
-              flag = false;
-              break;
+            if (oldLoc != newLoc) {
+              if (newLoc == "Unknown") {
+                await _sqlDatabaseService.logGeoFence(
+                    widget.username, oldLoc, "o");
+                _notificationService.scheduleNotification(
+                  "Exit $oldLoc!",
+                  "You just left $oldLoc.",
+                );
+              } else {
+                await _sqlDatabaseService.logGeoFence(
+                    widget.username, newLoc, "i");
+                _notificationService.scheduleNotification(
+                  "Entered $newLoc!",
+                  "Your attendance at $newLoc has been noted!",
+                );
+              }
+              oldLoc = newLoc;
+              setState(() {
+                this.position = newLoc;
+              });
             }
           }
-          if (flag) {
-            newLoc = "Unknown";
-          }
-
-          if (oldLoc != newLoc) {
-            if (newLoc == "Unknown") {
-              await _sqlDatabaseService.logGeoFence(widget.username, oldLoc, "o");
-              _notificationService.scheduleNotification(
-                "Exit $oldLoc!",
-                "You just left $oldLoc.",
-              );
-            } else {
-              await _sqlDatabaseService.logGeoFence(widget.username, newLoc, "i");
-              _notificationService.scheduleNotification(
-                "Entered $newLoc!",
-                "Your attendance at $newLoc has been noted!",
-              );
-            }
-            oldLoc = newLoc;
-            setState(() {
-              this.position = newLoc;
-            });
+          else{
+            _logout();
           }
         }
       },
@@ -160,7 +172,6 @@ class _ProfileState extends State<Profile> {
 
     _notificationService = NotificationService(flutterLocalNotificationsPlugin);
     _notificationService.notificationInitialize();
-
     _determinePosition();
   }
 
@@ -213,7 +224,9 @@ class _ProfileState extends State<Profile> {
                     ),
                     Text(
                       'Your attendance has been registered at ' +
-                          (widget.location == null ? "Unknown location" : widget.location["id"]),
+                          (widget.location == null
+                              ? "Unknown location"
+                              : widget.location["id"]),
                       style: TextStyle(fontSize: 16),
                       textAlign: TextAlign.left,
                     ),
