@@ -50,25 +50,59 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   ];
 
   /// GET LOCATION USING GEO LOCATOR
-  Future<Map<String, dynamic>> getCurrentLocation() async {
-    bool serviceEnabled;
+  Future<Map<String, dynamic>> getCurrentLocation(BuildContext context) async {
     LocationPermission permission;
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
 
+    // checking app permissions to access location
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
+        return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Allow location permission'),
+              content: Text(
+                  'Location services were denied. To continue, please allow permission to access location'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () async => {
+                    await Geolocator.openAppSettings(),
+                    Navigator.pop(context, 'Ok'),
+                  },
+                  child: const Text('Ok'),
+                ),
+              ],
+            );
+          },
+        );
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      return Future.error(
+      Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
+
+      return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Allow location permission'),
+            content: Text(
+                'To continue, please allow permission to access location. This will make it easier to mark your attendance'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () async => {
+                  await Geolocator.openAppSettings(),
+                  Navigator.pop(context, 'Open settings'),
+                },
+                child: const Text('Open settings'),
+              ),
+            ],
+          );
+        },
+      );
     }
 
     Position position = await Geolocator.getCurrentPosition(
@@ -110,8 +144,11 @@ class _AuthActionButtonState extends State<AuthActionButton> {
 
   Future _signIn(context) async {
     String password = _passwordTextEditingController.text;
-    var geoRegion = await getCurrentLocation();
-    if (this.predictedUser.password == password && geoRegion != null) {
+    var geoRegion = await getCurrentLocation(context);
+
+    // TODO : why geo region null??
+    // if (this.predictedUser.password == password && geoRegion != null) {
+    if (this.predictedUser.password == password) {
       await _sqlDatabaseService.signIn(this.predictedUser.user, "i");
 
       Navigator.push(
@@ -266,6 +303,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                 Divider(),
                 SizedBox(height: 10),
                 widget.isLogin && predictedUser != null
+                // TODO : add some loading indicator on click
                     ? AppButton(
                         text: 'LOGIN',
                         onPressed: () async {
