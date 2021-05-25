@@ -150,8 +150,7 @@ class _ProfileState extends State<Profile> {
                 this.position = newLoc;
               });
             }
-          }
-          else{
+          } else {
             _logout();
           }
         }
