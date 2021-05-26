@@ -37,11 +37,9 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       TextEditingController(text: '');
   final TextEditingController _userEmailEditingController =
       TextEditingController(text: '');
-
   User predictedUser;
   String lat;
   String lon;
-  bool buttonLoading = false;
   List<Map<String, dynamic>> geoRegions = [
     {
       "latitude": 17.456900943260322,
@@ -145,7 +143,6 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   }
 
   Future _signIn(context) async {
-
     String password = _passwordTextEditingController.text;
     var geoRegion = await getCurrentLocation(context);
     if (geoRegion == null) {
@@ -314,10 +311,11 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                 Divider(),
                 SizedBox(height: 10),
                 widget.isLogin && predictedUser != null
+                    // TODO : add some loading indicator on click
                     ? AppButton(
                         text: 'LOGIN',
                         onPressed: () async {
-                          await _signIn(context);
+                          _signIn(context);
                         },
                         icon: Icon(
                           Icons.login,
