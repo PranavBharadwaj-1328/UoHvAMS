@@ -40,6 +40,8 @@ class SignUpState extends State<SignUp> {
   CameraService _cameraService = CameraService();
   FaceNetService _faceNetService = FaceNetService();
 
+  bool captureButtonLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +72,9 @@ class SignUpState extends State<SignUp> {
 
   /// handles the button pressed event
   Future<void> onShot() async {
+    setState(() {
+      captureButtonLoading = true;
+    });
     if (faceDetected == null) {
       showDialog(
         context: context,
@@ -79,6 +84,10 @@ class SignUpState extends State<SignUp> {
           );
         },
       );
+
+      setState(() {
+        captureButtonLoading = false;
+      });
 
       return false;
     } else {
@@ -92,6 +101,7 @@ class SignUpState extends State<SignUp> {
       setState(() {
         _bottomSheetVisible = true;
         pictureTaked = true;
+        captureButtonLoading = false;
       });
 
       return true;
@@ -225,6 +235,7 @@ class SignUpState extends State<SignUp> {
                 onPressed: onShot,
                 isLogin: false,
                 reload: _reload,
+                captureButtonLoading: captureButtonLoading,
               )
             : Container());
   }
