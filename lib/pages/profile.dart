@@ -67,18 +67,10 @@ class _ProfileState extends State<Profile> {
 
   final SqlDatabaseService _sqlDatabaseService = SqlDatabaseService();
   NotificationService _notificationService;
-  StreamSubscription<Position> _geolocatorStream;
 
   /// Logout function
   Future<void> _logout() async {
     await _sqlDatabaseService.signIn(widget.username, "o");
-
-    _geolocatorStream.cancel();
-
-    _notificationService.scheduleNotification(
-      "Exit Campus!",
-      "You left the campus premises.",
-    );
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => MyHomePage()),
@@ -89,16 +81,31 @@ class _ProfileState extends State<Profile> {
   /// LIVE LOCATION AND GEOFENCING FUNCTION
 
   void _determinePosition() async {
-    double campusLatitude = 17.456900943260322;
-    double campusLongitude = 78.3263732689548;
-    double campusRadius = 30000.0;
+    bool serviceEnabled;
+    LocationPermission permission;
+    double campus_latitude = 17.456900943260322;
+    double campus_longitude = 78.3263732689548;
+    double campus_radius = 30000.0;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
 
-    /// Not asking location permissions cuz
-    /// asked in previous screen
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
 
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
     String oldLoc = "Unknown";
     String newLoc = "Unknown";
-    _geolocatorStream = Geolocator.getPositionStream(
+    Geolocator.getPositionStream(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
       intervalDuration: Duration(seconds: 15),
     ).listen(
@@ -110,8 +117,8 @@ class _ProfileState extends State<Profile> {
           });
         } else {
           if (Geolocator.distanceBetween(position.latitude, position.longitude,
-                  campusLatitude, campusLongitude) <
-              campusRadius) {
+                  campus_latitude, campus_longitude) <
+              campus_radius) {
             bool flag = true;
             for (Map<String, dynamic> geoRegion in geoRegions) {
               if (Geolocator.distanceBetween(
