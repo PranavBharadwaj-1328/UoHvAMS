@@ -44,6 +44,8 @@ class SignInState extends State<SignIn> {
   Size imageSize;
   Face faceDetected;
 
+  bool captureButtonLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -115,6 +117,9 @@ class SignInState extends State<SignIn> {
 
   /// handles the button pressed event
   Future<void> onShot() async {
+    setState(() {
+      captureButtonLoading = true;
+    });
     if (faceDetected == null) {
       showDialog(
         context: context,
@@ -125,6 +130,9 @@ class SignInState extends State<SignIn> {
         },
       );
 
+      setState(() {
+        captureButtonLoading = false;
+      });
       return false;
     } else {
       _saving = true;
@@ -138,8 +146,8 @@ class SignInState extends State<SignIn> {
         _bottomSheetVisible = true;
         pictureTaked = true;
         imagePath = file.path;
+        captureButtonLoading = false;
       });
-
       return true;
     }
   }
@@ -230,6 +238,7 @@ class SignInState extends State<SignIn> {
               onPressed: onShot,
               isLogin: true,
               reload: _reload,
+              captureButtonLoading: captureButtonLoading,
             )
           : Container(),
     );
