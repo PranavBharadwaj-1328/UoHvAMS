@@ -5,6 +5,7 @@ import 'package:face_net_authentication/services/facenet.service.dart';
 import 'package:face_net_authentication/services/ml_vision_service.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -64,8 +65,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: Color(0xFFFFFFFF),
+      // backgroundColor: Color(0xFFFFFFFF),
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: Container(),
         elevation: 0,
@@ -98,83 +103,68 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       body: !loading
-          ? SafeArea(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Image(image: AssetImage('assets/logo.png')),
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      child: Column(
-                        children: [
-                          Text(
-                            "Attendance Monitoring System",
-                            style: TextStyle(
-                                fontSize: 25, fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                        ],
+          ? Center(
+            // child: SingleChildScrollView(
+            child: SizedBox(
+              height: size.height,
+              child: Stack(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(top: size.height * 0.525),
+                    height: size.height * 0.475,
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFDB642),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
                       ),
                     ),
-                    Column(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (BuildContext context) => SignIn(
-                                  cameraDescription: cameraDescription,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.lightGreenAccent,
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  color: Colors.blue.withOpacity(0.1),
-                                  blurRadius: 1,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 14, horizontal: 16),
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Attend',
-                                  style: TextStyle(color: Color(0xFF0F0BDB)),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Icon(Icons.login, color: Color(0xFF0F0BDB))
-                              ],
-                            ),
-                          ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 50.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Image.asset(
+                          'assets/logo.png',
+                          height: 75,
+                          width: 75,
                         ),
                         SizedBox(
-                          height: 10,
+                          height: 20,
                         ),
-                        !dbExists
-                            ? InkWell(
+                        Text(
+                          "vAMS.",
+                          style: TextStyle(
+                              fontSize: 40, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "Attendance made simple.",
+                          style: TextStyle(
+                              fontSize: 25, fontWeight: FontWeight.w300),
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Image.asset(
+                          'assets/desk.png',
+                          fit: BoxFit.fitWidth,
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 20.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              InkWell(
                                 onTap: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (BuildContext context) => SignUp(
-                                        cameraDescription: cameraDescription,
+                                      builder: (BuildContext context) =>
+                                          SignIn(
+                                        cameraDescription:
+                                            cameraDescription,
                                       ),
                                     ),
                                   );
@@ -182,7 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    color: Color(0xFF0F0BDB),
+                                    color: Color(0xFF063057),
                                     boxShadow: <BoxShadow>[
                                       BoxShadow(
                                         color: Colors.blue.withOpacity(0.1),
@@ -192,47 +182,104 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ],
                                   ),
                                   alignment: Alignment.center,
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 14, horizontal: 16),
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.8,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'SIGN UP',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Icon(Icons.person_add,
-                                          color: Colors.white)
-                                    ],
+                                  padding:
+                                      EdgeInsets.symmetric(vertical: 16),
+                                  child: Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
-                              )
-                            : SizedBox(),
-                        !dbExists
-                            ? Text(
-                                'One time registration only!',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                ),
-                              )
-                            : Text(
-                                'Already registered!',
-                                style: TextStyle(
-                                  color: Colors.green,
-                                ),
                               ),
-                        Divider(),
+                              SizedBox(
+                                height: 15,
+                              ),
+                              !dbExists
+                                  ? InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (BuildContext context) =>
+                                                    SignUp(
+                                              cameraDescription:
+                                                  cameraDescription,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Colors.white,
+                                              boxShadow: <BoxShadow>[
+                                                BoxShadow(
+                                                  color: Colors.blue
+                                                      .withOpacity(0.1),
+                                                  blurRadius: 1,
+                                                  offset: Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            alignment: Alignment.center,
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: 16,
+                                            ),
+                                            width: size.width * 0.8,
+                                            child: Text(
+                                              'Register',
+                                              style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.black87,
+                                                  fontWeight:
+                                                      FontWeight.w700),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          Container(
+                                            alignment: Alignment.bottomLeft,
+                                            child: Text(
+                                              '(One time registration!)',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black26,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : Container(
+                                      alignment: Alignment.bottomLeft,
+                                      child: Text(
+                                        '(Already registered!)',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black26,
+                                        ),
+                                      ),
+                                    ),
+                            ],
+                          ),
+                        ),
                       ],
-                    )
-                  ],
-                ),
+                    ),
+                  )
+                ],
               ),
-            )
+            ),
+          )
           : Center(
               child: CircularProgressIndicator(),
             ),
