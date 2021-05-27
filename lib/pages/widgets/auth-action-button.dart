@@ -342,18 +342,20 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                             ),
                           )
                     : !widget.isLogin
-                        ? AppButton(
-                            text: 'SIGN UP',
-                            onPressed: () async {
-                              changeButtonLoadingState(true);
-                              await _signUp(context);
-                              changeButtonLoadingState(false);
-                            },
-                            icon: Icon(
-                              Icons.person_add,
-                              color: Colors.white,
-                            ),
-                          )
+                        ? buttonLoading
+                            ? CircularProgressIndicator()
+                            : AppButton(
+                                text: 'SIGN UP',
+                                onPressed: () async {
+                                  changeButtonLoadingState(true);
+                                  await _signUp(context);
+                                  changeButtonLoadingState(false);
+                                },
+                                icon: Icon(
+                                  Icons.person_add,
+                                  color: Colors.white,
+                                ),
+                              )
                         : Container(),
               ],
             ),
