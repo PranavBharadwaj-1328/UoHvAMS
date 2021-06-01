@@ -144,11 +144,39 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     String email = _userEmailEditingController.text;
     String empid = _userIdEditingController.text;
 
+    if (user == '' || password == '' || email == '' || empid == '') {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text('Please fill in all the fields!'),
+          );
+        },
+      );
+      return;
+    }
+
     /// creates a new user in the 'database'
     await _dataBaseService.saveData(user, password, predictedData);
 
+    // TODO what if registered, but trying to locally register again?? store image data ???
+
     /// SIGN UP
-    await _sqlDatabaseService.signUp(empid, user, email, password);
+    try {
+      await _sqlDatabaseService.signUp(empid, user, email, password);
+    } catch(e) {
+      print(e.message);
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            //
+            content: Text('Employee id already exists!'),
+          );
+        },
+      );
+      return;
+    }
 
     /// resets the face stored in the face net sevice
     this._faceNetService.setPredictedData(null);
