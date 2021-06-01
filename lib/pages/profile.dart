@@ -32,9 +32,9 @@ class _ProfileState extends State<Profile> {
       "id": "NKS home",
     },
     {
-      "latitude": 17.397909,
-      "longitude": 78.5199671,
-      "radius": 20.0,
+      "latitude": 17.39822474793671,
+      "longitude":  78.51998299778967,
+      "radius": 50.0,
       "id": "PB Home",
     },
     {
@@ -72,9 +72,7 @@ class _ProfileState extends State<Profile> {
   /// Logout function
   Future<void> _logout() async {
     await _sqlDatabaseService.signIn(widget.username, "o");
-
     _geolocatorStream.cancel();
-
     _notificationService.scheduleNotification(
       "Exit Campus!",
       "You left the campus premises.",
@@ -89,6 +87,24 @@ class _ProfileState extends State<Profile> {
   /// LIVE LOCATION AND GEOFENCING FUNCTION
 
   void _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
     double campusLatitude = 17.456900943260322;
     double campusLongitude = 78.3263732689548;
     double campusRadius = 30000.0;
@@ -100,7 +116,7 @@ class _ProfileState extends State<Profile> {
     String newLoc = "Unknown";
     _geolocatorStream = Geolocator.getPositionStream(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
-      intervalDuration: Duration(seconds: 15),
+      //intervalDuration: Duration(seconds: 15),
     ).listen(
       (Position position) async {
         if (position == null) {
