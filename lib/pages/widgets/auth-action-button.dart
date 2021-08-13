@@ -157,9 +157,11 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     }
 
     /// creates a new user in the 'database'
-    await _dataBaseService.saveData(user, password, predictedData);
+    await _dataBaseService.saveData(empid, user, password, predictedData);
 
     // TODO what if registered, but trying to locally register again?? store image data ???
+
+    // TODO primary key???
 
     /// SIGN UP
     try {
@@ -170,7 +172,6 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            //
             content: Text('Employee id already exists!'),
           );
         },
@@ -198,12 +199,13 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       );
     } else {
       if (this.predictedUser.password == password) {
-        await _sqlDatabaseService.signIn(this.predictedUser.user, "i");
+        await _sqlDatabaseService.signIn(this.predictedUser.empId, this.predictedUser.user, "i");
 
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (BuildContext context) => Profile(
+              this.predictedUser.empId,
               this.predictedUser.user,
               geoRegion,
               imagePath: _cameraService.imagePath,
