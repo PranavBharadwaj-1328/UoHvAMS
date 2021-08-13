@@ -32,9 +32,9 @@ class _ProfileState extends State<Profile> {
       "id": "NKS home",
     },
     {
-      "latitude": 17.39822474793671,
-      "longitude":  78.51998299778967,
-      "radius": 50.0,
+      "latitude": 17.3980944,
+      "longitude":  78.5199617,
+      "radius": 5.0,
       "id": "PB Home",
     },
     {
@@ -60,6 +60,12 @@ class _ProfileState extends State<Profile> {
       "longitude": 78.31434161006122,
       "radius": 50.0,
       "id": "Satish sir",
+    },
+    {
+      "latitude": 17.460088835720907,
+      "longitude": 78.33429144469663,
+      "radius": 100,
+      "id": "UoH Admin block",
     },
   ];
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =

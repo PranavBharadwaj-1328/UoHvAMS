@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:mysql1/mysql1.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class SqlDatabaseService {
 
@@ -17,6 +19,11 @@ class SqlDatabaseService {
     print("conn");
     return await MySqlConnection.connect(
       ConnectionSettings(
+        // host: 'scislearn3.uohyd.ac.in',
+        // port: 3306,
+        // user: 'ams1user1',
+        // db: 'ams1',
+        // password: 'Nksscis#1',
         host: 'remotemysql.com',
         port: 3306,
         user: 'cVLw2NAjNX',
@@ -25,15 +32,26 @@ class SqlDatabaseService {
       ),
     );
   }
-
+  /// Device Id
+  Future<String> _getId() async {
+    var deviceInfo = DeviceInfoPlugin();
+    if (Platform.isIOS) { // import 'dart:io'
+      var iosDeviceInfo = await deviceInfo.iosInfo;
+      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+    } else {
+      var androidDeviceInfo = await deviceInfo.androidInfo;
+      return androidDeviceInfo.androidId; // unique ID on Android
+    }
+  }
   /// SIGN UP
   Future<void> signUp(String empid, String user, String email, String password ) async {
     print("signup");
     MySqlConnection conn = await connect();
-
+    var dev_id = await _getId();
+    print(dev_id);
     var result = await conn.query(
-      'insert into User_table (emp_id, name, email, password) values (?, ?, ?, ?)',
-      [empid, user, email, password],
+      'insert into User_table (mobile_id, emp_id, name, email, password) values (?, ?, ?, ?, ?)',
+      [dev_id, empid, user, email, password],
     );
     print('Inserted row id=${result.insertId}');
 
@@ -41,7 +59,7 @@ class SqlDatabaseService {
     print("signup done");
     return;
   }
-
+  //TODO : fetch dev_id in front-end
   /// SIGN IN
   Future<void> signIn(String user, String io) async {
     print("signin");
