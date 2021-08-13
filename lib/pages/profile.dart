@@ -11,8 +11,9 @@ import 'package:geolocator/geolocator.dart';
 
 class Profile extends StatefulWidget {
   /// doubt doubt
-  const Profile(this.username, this.location, {Key key, this.imagePath})
+  const Profile(this.empId, this.username, this.location, {Key key, this.imagePath})
       : super(key: key);
+  final String empId;
   final String username;
   final String imagePath;
   final Map<String, dynamic> location;
@@ -77,7 +78,7 @@ class _ProfileState extends State<Profile> {
 
   /// Logout function
   Future<void> _logout() async {
-    await _sqlDatabaseService.signIn(widget.username, "o");
+    await _sqlDatabaseService.signIn(widget.empId, widget.username, "o");
     _geolocatorStream.cancel();
     _notificationService.scheduleNotification(
       "Exit Campus!",
@@ -87,6 +88,7 @@ class _ProfileState extends State<Profile> {
       context,
       MaterialPageRoute(builder: (context) => MyHomePage()),
     );
+    // Navigator.popUntil(context, ModalRoute.withName('/home'));
     return;
   }
 
@@ -153,15 +155,13 @@ class _ProfileState extends State<Profile> {
 
             if (oldLoc != newLoc) {
               if (newLoc == "Unknown") {
-                await _sqlDatabaseService.logGeoFence(
-                    widget.username, oldLoc, "o");
+                await _sqlDatabaseService.logGeoFence(widget.empId, widget.username, oldLoc, "o");
                 _notificationService.scheduleNotification(
                   "Exit $oldLoc!",
                   "You just left $oldLoc.",
                 );
               } else {
-                await _sqlDatabaseService.logGeoFence(
-                    widget.username, newLoc, "i");
+                await _sqlDatabaseService.logGeoFence(widget.empId, widget.username, newLoc, "i");
                 _notificationService.scheduleNotification(
                   "Entered $newLoc!",
                   "Your attendance at $newLoc has been noted!",
