@@ -32,6 +32,7 @@ class SqlDatabaseService {
       ),
     );
   }
+
   /// Device Id
   Future<String> _getId() async {
     var deviceInfo = DeviceInfoPlugin();
@@ -43,6 +44,7 @@ class SqlDatabaseService {
       return androidDeviceInfo.androidId; // unique ID on Android
     }
   }
+
   /// SIGN UP
   Future<void> signUp(String empid, String user, String email, String password ) async {
     print("signup");
@@ -59,33 +61,35 @@ class SqlDatabaseService {
     print("signup done");
     return;
   }
+
   //TODO : fetch dev_id in front-end
+
   /// SIGN IN
-  Future<void> signIn(String user, String io) async {
+  Future<void> signIn(String empId, String user, String io) async {
     print("signin");
     MySqlConnection conn = await connect();
 
     var result = await conn.query(
-      'insert into Logs (name, in_out) values (?, ?)',
-      [user, io],
+      'insert into Logs (emp_id, name, in_out) values (?, ?, ?)',
+      [empId, user, io],
     );
 
     print('Inserted row id=${result.insertId}');
 
     await conn.close();
-    print("signin done");
+    print("Sign in done");
     return;
   }
 
   /// GEO FENCING LOGS
 
-  Future<void> logGeoFence(String user, String entryId, String entryOrExit) async {
+  Future<void> logGeoFence(String empId, String user, String entryId, String entryOrExit) async {
     print("logging geo-fence updates");
     MySqlConnection conn = await connect();
 
     var result = await conn.query(
-      'insert into Geo_logs (name, loc_id, in_out) values (?, ?, ?)',
-      [user, entryId, entryOrExit],
+      'insert into Geo_logs (emp_id, name, loc_id, in_out) values (?, ?, ?, ?)',
+      [empId, user, entryId, entryOrExit],
     );
 
     print('Inserted row id=${result.insertId}');
