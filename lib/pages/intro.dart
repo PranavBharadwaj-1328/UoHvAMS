@@ -1,9 +1,7 @@
-// import 'dart:html';
-
+import 'package:face_net_authentication/pages/db/database.dart';
 import 'package:flutter/material.dart';
 import 'package:intro_slider/intro_slider.dart';
 import 'package:intro_slider/slide_object.dart';
-import 'home.dart';
 
 class IntroPage extends StatefulWidget {
   IntroPage({Key key}) : super(key: key);
@@ -12,6 +10,10 @@ class IntroPage extends StatefulWidget {
 }
 
 class _IntroPageState extends State<IntroPage> {
+  DataBaseService _dataBaseService = DataBaseService();
+  bool loading = true;
+  bool dbExists;
+
   List<Slide> slides = [];
   TextStyle kStyleTitle = TextStyle(
     // color: Color(0xff3da4ab),
@@ -28,9 +30,17 @@ class _IntroPageState extends State<IntroPage> {
     fontFamily: 'Raleway',
   );
 
+
+  /// if local db already exists, dont show intro slider page
+  void _startUp() async {
+    bool dbExists = await _dataBaseService.checkDB();
+    if (dbExists) onDonePress();
+  }
+
   @override
-  void initState() {
+  initState() {
     super.initState();
+    _startUp();
 
     slides.add(
       new Slide(
@@ -70,8 +80,8 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   void onDonePress() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => MyHomePage()));
+    /// Remove intro page route from stack and push home route
+    Navigator.pushReplacementNamed(context, '/home');
   }
 
   Widget renderNextBtn() {

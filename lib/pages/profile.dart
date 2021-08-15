@@ -84,11 +84,7 @@ class _ProfileState extends State<Profile> {
       "Exit Campus!",
       "You left the campus premises.",
     );
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MyHomePage()),
-    );
-    // Navigator.popUntil(context, ModalRoute.withName('/home'));
+    Navigator.popUntil(context, ModalRoute.withName('/home'));
     return;
   }
 

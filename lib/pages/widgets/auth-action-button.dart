@@ -4,10 +4,9 @@ import 'package:face_net_authentication/pages/profile.dart';
 import 'package:face_net_authentication/pages/widgets/app_button.dart';
 import 'package:face_net_authentication/services/camera.service.dart';
 import 'package:face_net_authentication/services/facenet.service.dart';
-import '../db/sqldb.dart';
+import 'package:face_net_authentication/pages/db/sqldb.dart';
 import 'package:flutter/material.dart';
-import '../home.dart';
-import 'app_text_field.dart';
+import 'package:face_net_authentication/pages/widgets/app_text_field.dart';
 import 'package:geolocator/geolocator.dart';
 
 class AuthActionButton extends StatefulWidget {
@@ -179,10 +178,9 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       return;
     }
 
-    /// resets the face stored in the face net sevice
+    /// resets the face stored in the face net service
     this._faceNetService.setPredictedData(null);
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => MyHomePage()));
+    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
   }
 
   Future _signIn(context) async {
