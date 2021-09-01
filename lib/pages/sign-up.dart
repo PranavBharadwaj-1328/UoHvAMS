@@ -26,12 +26,12 @@ class SignUpState extends State<SignUp> {
   Size imageSize;
 
   bool _detectingFaces = false;
-  bool pictureTaked = false;
+  bool pictureTaken = false;
 
   Future _initializeControllerFuture;
   bool cameraInitializated = false;
 
-  // switchs when the user press the camera
+  // switches when the user press the camera
   bool _saving = false;
   bool _bottomSheetVisible = false;
 
@@ -100,7 +100,7 @@ class SignUpState extends State<SignUp> {
 
       setState(() {
         _bottomSheetVisible = true;
-        pictureTaked = true;
+        pictureTaken = true;
         captureButtonLoading = false;
       });
 
@@ -156,7 +156,7 @@ class SignUpState extends State<SignUp> {
     setState(() {
       _bottomSheetVisible = false;
       cameraInitializated = false;
-      pictureTaked = false;
+      pictureTaken = false;
     });
     this._start();
   }
@@ -173,7 +173,7 @@ class SignUpState extends State<SignUp> {
               future: _initializeControllerFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  if (pictureTaked) {
+                  if (pictureTaken) {
                     return Container(
                       width: width,
                       height: height,

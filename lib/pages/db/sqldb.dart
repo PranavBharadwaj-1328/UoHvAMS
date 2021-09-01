@@ -52,8 +52,10 @@ class SqlDatabaseService {
     var dev_id = await _getId();
     print(dev_id);
     var result = await conn.query(
-      'insert into User_table (mobile_id, emp_id, name, email, password) values (?, ?, ?, ?, ?)',
-      [dev_id, empid, user, email, password],
+      // 'insert into User_table (mobile_id, emp_id, name, email, password) values (?, ?, ?, ?, ?)',
+      // [dev_id, empid, user, email, password],
+      'insert into User_table (emp_id, name, email, password) values (?, ?, ?, ?)',
+      [empid, user, email, password],
     );
     print('Inserted row id=${result.insertId}');
 
