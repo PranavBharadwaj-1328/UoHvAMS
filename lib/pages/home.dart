@@ -158,17 +158,25 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: [
                               InkWell(
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (BuildContext context) =>
+                                  !dbExists
+                                  ? showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        content: Text('Please register on this device before trying to login!'),
+                                      );
+                                    },
+                                  )
+                                  : Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (BuildContext context) =>
                                           SignIn(
-                                        cameraDescription:
-                                            cameraDescription,
+                                            cameraDescription: cameraDescription,
+                                          ),
                                       ),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
                                 child: Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
