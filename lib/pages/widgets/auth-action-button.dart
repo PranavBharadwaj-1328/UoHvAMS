@@ -1,7 +1,10 @@
+// import 'dart:html';
+
 import 'package:face_net_authentication/pages/db/database.dart';
 import 'package:face_net_authentication/pages/models/user.model.dart';
 import 'package:face_net_authentication/pages/profile.dart';
 import 'package:face_net_authentication/pages/widgets/app_button.dart';
+import 'package:face_net_authentication/pages/widgets/registration_steps.dart';
 import 'package:face_net_authentication/services/camera.service.dart';
 import 'package:face_net_authentication/services/facenet.service.dart';
 import 'package:face_net_authentication/pages/db/sqldb.dart';
@@ -32,13 +35,13 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   final CameraService _cameraService = CameraService();
   final SqlDatabaseService _sqlDatabaseService = SqlDatabaseService();
 
-  final TextEditingController _userTextEditingController =
+  final TextEditingController userTextEditingController =
       TextEditingController(text: '');
-  final TextEditingController _passwordTextEditingController =
+  final TextEditingController passwordTextEditingController =
       TextEditingController(text: '');
-  final TextEditingController _userIdEditingController =
+  final TextEditingController userIdEditingController =
       TextEditingController(text: '');
-  final TextEditingController _userEmailEditingController =
+  final TextEditingController userEmailEditingController =
       TextEditingController(text: '');
 
   PersistentBottomSheetController bottomSheetController;
@@ -138,10 +141,10 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   Future _signUp(context) async {
     /// gets predicted data from facenet service (user face detected)
     List predictedData = _faceNetService.predictedData;
-    String user = _userTextEditingController.text;
-    String password = _passwordTextEditingController.text;
-    String email = _userEmailEditingController.text;
-    String empid = _userIdEditingController.text;
+    String user = userTextEditingController.text;
+    String password = passwordTextEditingController.text;
+    String email = userEmailEditingController.text;
+    String empid = userIdEditingController.text;
 
     if (user == '' || password == '' || email == '' || empid == '') {
       showDialog(
@@ -158,14 +161,12 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     /// creates a new user in the 'database'
     await _dataBaseService.saveData(empid, user, password, predictedData);
 
-    // TODO what if registered, but trying to locally register again?? store image data ???
-
     // TODO primary key???
 
     /// SIGN UP
     try {
       await _sqlDatabaseService.signUp(empid, user, email, password);
-    } catch(e) {
+    } catch (e) {
       print(e.message);
       showDialog(
         context: context,
@@ -184,7 +185,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   }
 
   Future _signIn(context) async {
-    String password = _passwordTextEditingController.text;
+    String password = passwordTextEditingController.text;
     var geoRegion = await getCurrentLocation(context);
     if (geoRegion == null) {
       showDialog(
@@ -197,7 +198,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       );
     } else {
       if (this.predictedUser.password == password) {
-        await _sqlDatabaseService.signIn(this.predictedUser.empId, this.predictedUser.user, "i");
+        await _sqlDatabaseService.signIn(
+            this.predictedUser.empId, this.predictedUser.user, "i");
 
         Navigator.push(
           context,
@@ -291,104 +293,95 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   }
 
   signSheet(context) {
-    return Container(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          widget.isLogin && predictedUser != null
-              ? Container(
-                  padding: EdgeInsets.only(top: 10.0, bottom: 30.0),
-                  child: Text(
-                    'Welcome back, ' + predictedUser.user + '!',
-                    style: TextStyle(fontSize: 20),
-                  ),
-                )
-              : widget.isLogin
-                  ? Container(
-                      child: Text(
-                      'User not found 😞',
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            widget.isLogin && predictedUser != null
+                // Headers
+                ? Container(
+                    padding: EdgeInsets.only(top: 10.0, bottom: 30.0),
+                    child: Text(
+                      'Welcome back, ' + predictedUser.user + '!',
                       style: TextStyle(fontSize: 20),
-                    ))
-                  : Container(),
-          Container(
-            child: Column(
-              children: [
-                !widget.isLogin
-                    ? Column(
-                        children: [
-                          Text(
-                            'Hi!',
-                            style: TextStyle(
-                              fontSize: 25.0,
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          AppTextField(
-                            controller: _userTextEditingController,
-                            labelText: "Your Name",
-                          ),
-                          SizedBox(height: 10),
-                          AppTextField(
-                            controller: _userIdEditingController,
-                            labelText: "Employee ID",
-                          ),
-                          SizedBox(height: 10),
-                          AppTextField(
-                            controller: _userEmailEditingController,
-                            labelText: "Your Email",
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                        ],
+                    ),
+                  )
+                : widget.isLogin
+                    ? Container(
+                        child: Text(
+                          'User not found 😞',
+                          style: TextStyle(fontSize: 20),
+                        ),
                       )
-                    : Container(),
-                SizedBox(height: 10),
-                widget.isLogin && predictedUser == null
-                    ? Container()
-                    : AppTextField(
-                        controller: _passwordTextEditingController,
-                        labelText: "Password",
-                        isPassword: true,
+                    : Container(
+                        child: Text(
+                          'Hi!',
+                          style: TextStyle(fontSize: 20),
+                        ),
                       ),
-                SizedBox(height: 10),
-                Divider(),
-                SizedBox(height: 10),
-                widget.isLogin && predictedUser != null
+
+            SizedBox(height: 10),
+
+            // Body
+            Container(
+              child: Column(
+                children: [
+                  widget.isLogin && predictedUser != null
+                      ? AppTextField(
+                          controller: passwordTextEditingController,
+                          labelText: "Password",
+                          isPassword: true,
+                        )
+                      : Container(),
+                  !widget.isLogin
+                      ? RegistrationSteps(userTextEditingController, passwordTextEditingController, userEmailEditingController, userIdEditingController)
+                      : Container(),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 10),
+            Divider(),
+            SizedBox(height: 10),
+
+            // button
+            widget.isLogin && predictedUser != null
+                ? buttonLoading
+                    ? CircularProgressIndicator()
+                    : AppButton(
+                        text: 'LOGIN',
+                        onPressed: () async {
+                          changeButtonLoadingState(true);
+                          await _signIn(context);
+                          changeButtonLoadingState(false);
+                        },
+                        icon: Icon(
+                          Icons.login,
+                          color: Colors.white,
+                        ),
+                      )
+                : !widget.isLogin
                     ? buttonLoading
                         ? CircularProgressIndicator()
                         : AppButton(
-                            text: 'LOGIN',
+                            text: 'SIGN UP',
                             onPressed: () async {
                               changeButtonLoadingState(true);
-                              await _signIn(context);
+                              await _signUp(context);
                               changeButtonLoadingState(false);
                             },
                             icon: Icon(
-                              Icons.login,
+                              Icons.person_add,
                               color: Colors.white,
                             ),
                           )
-                    : !widget.isLogin
-                        ? buttonLoading
-                            ? CircularProgressIndicator()
-                            : AppButton(
-                                text: 'SIGN UP',
-                                onPressed: () async {
-                                  changeButtonLoadingState(true);
-                                  await _signUp(context);
-                                  changeButtonLoadingState(false);
-                                },
-                                icon: Icon(
-                                  Icons.person_add,
-                                  color: Colors.white,
-                                ),
-                              )
-                        : Container(),
-              ],
-            ),
-          ),
-        ],
+                    // wont reach this condition
+                    : Container(),
+          ],
+        ),
       ),
     );
   }
