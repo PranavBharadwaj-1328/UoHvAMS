@@ -3,7 +3,6 @@ import 'package:mysql1/mysql1.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 class SqlDatabaseService {
-
   // singleton boilerplate
   static final SqlDatabaseService _cameraServiceService =
       SqlDatabaseService._internal();
@@ -11,7 +10,6 @@ class SqlDatabaseService {
   factory SqlDatabaseService() {
     return _cameraServiceService;
   }
-  // singleton boilerplate
   SqlDatabaseService._internal();
 
   /// CONNECTS TO DB
@@ -36,7 +34,8 @@ class SqlDatabaseService {
   /// Device Id
   Future<String> _getId() async {
     var deviceInfo = DeviceInfoPlugin();
-    if (Platform.isIOS) { // import 'dart:io'
+    if (Platform.isIOS) {
+      // import 'dart:io'
       var iosDeviceInfo = await deviceInfo.iosInfo;
       return iosDeviceInfo.identifierForVendor; // unique ID on iOS
     } else {
@@ -45,17 +44,19 @@ class SqlDatabaseService {
     }
   }
 
-  /// SIGN UP
-  Future<void> signUp(String empid, String user, String email, String password ) async {
+  /// SIGN UP (new user)
+  Future<void> signUp(
+      String empId, String user, String email, String password) async {
     print("signup");
     MySqlConnection conn = await connect();
-    var dev_id = await _getId();
-    print(dev_id);
+
+    var devId = await _getId();
+    print(devId);
+    // TODO: put id into mobile id table
+
     var result = await conn.query(
-      // 'insert into User_table (mobile_id, emp_id, name, email, password) values (?, ?, ?, ?, ?)',
-      // [dev_id, empid, user, email, password],
       'insert into User_table (emp_id, name, email, password) values (?, ?, ?, ?)',
-      [empid, user, email, password],
+      [empId, user, email, password],
     );
     print('Inserted row id=${result.insertId}');
 
@@ -64,7 +65,25 @@ class SqlDatabaseService {
     return;
   }
 
-  //TODO : fetch dev_id in front-end
+  /// SIGN UP (old user)
+
+  Future<String> signUpOldUser(String empId, String pwd) async {
+    print("signup- old user");
+    MySqlConnection conn = await connect();
+
+    var result = await conn.query(
+      'SELECT * from User_table WHERE emp_id=(?) AND password=(?)',
+      [empId, pwd],
+    );
+
+    var status = '';
+    for (var row in result) status = row[2];
+
+    await conn.close();
+    print('old user:' + status + ' sign up done');
+
+    return status;
+  }
 
   /// SIGN IN
   Future<void> signIn(String empId, String user, String io) async {
@@ -85,7 +104,8 @@ class SqlDatabaseService {
 
   /// GEO FENCING LOGS
 
-  Future<void> logGeoFence(String empId, String user, String entryId, String entryOrExit) async {
+  Future<void> logGeoFence(
+      String empId, String user, String entryId, String entryOrExit) async {
     print("logging geo-fence updates");
     MySqlConnection conn = await connect();
 
@@ -97,5 +117,24 @@ class SqlDatabaseService {
     print('Inserted row id=${result.insertId}');
     await conn.close();
     return;
+  }
+
+  /// CHECK IF EMP ID EXISTS
+
+  Future<dynamic> checkEmpID(String empId) async {
+    print("Checking for emp id");
+    MySqlConnection conn = await connect();
+
+    var result = await conn.query(
+      'SELECT name from User_table WHERE emp_id=(?)',
+      [empId],
+    );
+
+    var status = '';
+    for (var row in result) status = row[0];
+
+    await conn.close();
+    print(status);
+    return status == '' ? null : status;
   }
 }
