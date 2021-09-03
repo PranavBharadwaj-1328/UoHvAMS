@@ -159,14 +159,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                 InkWell(
                                   onTap: () {
                                     !dbExists
-                                        ? showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AlertDialog(
-                                                content: Text(
-                                                    'Please register on this device before trying to login!'),
-                                              );
-                                            },
+                                        ? ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                            SnackBar(
+                                              content: const Text(
+                                                  'Register on this device before trying to Login!'),
+                                              action: SnackBarAction(
+                                                label: 'Ok',
+                                                onPressed: () {},
+                                              ),
+                                            ),
                                           )
                                         : Navigator.push(
                                             context,
