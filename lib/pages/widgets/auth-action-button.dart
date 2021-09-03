@@ -138,45 +138,61 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     });
   }
 
+  /// SIGN UP
   Future _signUp(context) async {
     /// gets predicted data from facenet service (user face detected)
     List predictedData = _faceNetService.predictedData;
-    String user = userTextEditingController.text;
+    String empid = userIdEditingController.text;
     String password = passwordTextEditingController.text;
     String email = userEmailEditingController.text;
-    String empid = userIdEditingController.text;
+    String user = userTextEditingController.text;
 
-    if (user == '' || password == '' || email == '' || empid == '') {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Text('Please fill in all the fields!'),
+    if (await _sqlDatabaseService.checkEmpID(empid) == null) {
+      /// sign up new user
+      if (user == '' || password == '' || email == '' || empid == '') {
+        final snackBar = SnackBar(
+          content: const Text('Please enter all the fields!'),
+          action: SnackBarAction(
+            label: 'Ok',
+            onPressed: () {},
+          ),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return;
+      }
+
+      /// creates an user in the local 'database'
+      await _dataBaseService.saveData(empid, user, password, predictedData);
+
+      try {
+        await _sqlDatabaseService.signUp(empid, user, email, password);
+      } catch (e) {
+        print(e);
+        return;
+      }
+    } else {
+      /// sign up old user
+      try {
+        var status = await _sqlDatabaseService.signUpOldUser(empid, password);
+        if (status == '') {
+          final snackBar = SnackBar(
+            content: const Text('Incorrect password!'),
+            action: SnackBarAction(
+              label: 'Ok',
+              onPressed: () {},
+            ),
           );
-        },
-      );
-      return;
-    }
-
-    /// creates a new user in the 'database'
-    await _dataBaseService.saveData(empid, user, password, predictedData);
-
-    // TODO primary key???
-
-    /// SIGN UP
-    try {
-      await _sqlDatabaseService.signUp(empid, user, email, password);
-    } catch (e) {
-      print(e.message);
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Text('Employee id already exists!'),
-          );
-        },
-      );
-      return;
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          return;
+        } else {
+          /// creates an user in the local 'database'
+          await _dataBaseService.saveData(
+              empid, status, password, predictedData);
+        }
+      } catch (e) {
+        print(e);
+        return;
+      }
     }
 
     /// resets the face stored in the face net service
@@ -184,6 +200,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
   }
 
+  /// SIGN IN
   Future _signIn(context) async {
     String password = passwordTextEditingController.text;
     var geoRegion = await getCurrentLocation(context);
@@ -337,7 +354,11 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                         )
                       : Container(),
                   !widget.isLogin
-                      ? RegistrationSteps(userTextEditingController, passwordTextEditingController, userEmailEditingController, userIdEditingController)
+                      ? RegistrationSteps(
+                          userTextEditingController,
+                          passwordTextEditingController,
+                          userEmailEditingController,
+                          userIdEditingController)
                       : Container(),
                 ],
               ),

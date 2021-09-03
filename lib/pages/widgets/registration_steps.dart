@@ -1,21 +1,46 @@
 import 'package:flutter/material.dart';
 import 'app_text_field.dart';
+import '../db/sqldb.dart';
 
 class RegistrationSteps extends StatefulWidget {
-  RegistrationSteps(this.userTextEditingController, this.passwordTextEditingController, this.userEmailEditingController, this.userIdEditingController);
+  RegistrationSteps(
+      this.userTextEditingController,
+      this.passwordTextEditingController,
+      this.userEmailEditingController,
+      this.userIdEditingController);
 
   final TextEditingController userTextEditingController;
   final TextEditingController passwordTextEditingController;
-  final TextEditingController userIdEditingController;
   final TextEditingController userEmailEditingController;
+  final TextEditingController userIdEditingController;
 
   @override
   _RegistrationStepsState createState() => _RegistrationStepsState();
 }
 
 class _RegistrationStepsState extends State<RegistrationSteps> {
-
   int currentStep = 0;
+  var status;
+  final SqlDatabaseService _sqlDatabaseService = SqlDatabaseService();
+
+  continueButton() async {
+    if (currentStep == 0) {
+      currentStep++;
+      status = await _sqlDatabaseService
+          .checkEmpID(widget.userIdEditingController.text);
+      // print(status);
+    }
+    setState(() {});
+
+    print(currentStep);
+  }
+
+  cancelButton() async {
+    if (currentStep == 1) {
+      currentStep--;
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,17 +54,49 @@ class _RegistrationStepsState extends State<RegistrationSteps> {
           print(step);
         });
       },
-      onStepContinue: () {
-        setState(() {
-          currentStep < 1  ? currentStep++ : null;
-          print(currentStep);
-        });
-      },
-      onStepCancel: () {
-        setState(() {
-          currentStep > 0 ? currentStep-- : currentStep = 0;
-          print(currentStep);
-        });
+      onStepContinue: continueButton,
+      onStepCancel: cancelButton,
+      controlsBuilder: (BuildContext context,
+          {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+        return Container(
+          height: 70,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              currentStep == 0
+                  ? Text("")
+                  : ElevatedButton(
+                      onPressed: onStepCancel,
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.grey.shade500,
+                        onPrimary: Colors.white,
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.chevron_left),
+                          Text("PREV")
+                        ],
+                      ),
+                    ),
+              currentStep == 1
+                  ? Text("")
+                  : ElevatedButton(
+                      onPressed: onStepContinue,
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.indigoAccent,
+                        onPrimary: Colors.white,
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.chevron_right),
+                          Text("NEXT")
+                        ],
+                      ),
+                    )
+            ],
+          ),
+        );
       },
       steps: <Step>[
         Step(
@@ -53,26 +110,43 @@ class _RegistrationStepsState extends State<RegistrationSteps> {
                 controller: widget.userIdEditingController,
                 labelText: "Employee ID",
               ),
-              SizedBox(height: 10),
-              AppTextField(
-                controller: widget.userEmailEditingController,
-                labelText: "Your Email",
-                keyboardType: TextInputType.emailAddress,
-              ),
             ],
           ),
         ),
         Step(
           isActive: true,
-          state: currentStep < 1 ? StepState.disabled : currentStep == 1 ? StepState.editing : StepState.complete,
+          state: currentStep < 1
+              ? StepState.disabled
+              : currentStep == 1
+                  ? StepState.editing
+                  : StepState.complete,
           title: Text('User Details'),
           content: Column(
             children: [
-              AppTextField(
-                controller: widget.userTextEditingController,
-                labelText: "Your Name",
-              ),
-              SizedBox(height: 10),
+              status == null
+                  // if doest exist in db, new user
+                  // else, returning user.
+                  ? Column(
+                      children: [
+                        AppTextField(
+                          controller: widget.userTextEditingController,
+                          labelText: "Your Name",
+                        ),
+                        SizedBox(height: 10),
+                        AppTextField(
+                          controller: widget.userEmailEditingController,
+                          labelText: "Your Email",
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        SizedBox(height: 10),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        Text('Welcome back ' + status + '!'),
+                        SizedBox(height: 10),
+                      ],
+                    ),
               AppTextField(
                 controller: widget.passwordTextEditingController,
                 labelText: "Password",
@@ -82,7 +156,6 @@ class _RegistrationStepsState extends State<RegistrationSteps> {
           ),
         ),
       ],
-    )
-    ;
+    );
   }
 }
