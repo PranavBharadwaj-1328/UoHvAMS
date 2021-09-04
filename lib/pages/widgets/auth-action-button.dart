@@ -1,5 +1,3 @@
-// import 'dart:html';
-
 import 'package:face_net_authentication/pages/db/database.dart';
 import 'package:face_net_authentication/pages/models/user.model.dart';
 import 'package:face_net_authentication/pages/profile.dart';
@@ -11,6 +9,8 @@ import 'package:face_net_authentication/pages/db/sqldb.dart';
 import 'package:flutter/material.dart';
 import 'package:face_net_authentication/pages/widgets/app_text_field.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
 class AuthActionButton extends StatefulWidget {
   AuthActionButton(this._initializeControllerFuture,
@@ -146,7 +146,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     String password = passwordTextEditingController.text;
     String email = userEmailEditingController.text;
     String user = userTextEditingController.text;
-
+    String clientid;
     if (await _sqlDatabaseService.checkEmpID(empid) == null) {
       /// sign up new user
       if (user == '' || password == '' || email == '' || empid == '') {
@@ -160,9 +160,12 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         return;
       }
-
+      var url = Uri.http('192.168.1.6:8090', '/createclient',{'id':empid});
+      var resp = await http.get(url);
+      clientid = resp.body;
+      print(clientid);
       /// creates an user in the local 'database'
-      await _dataBaseService.saveData(empid, user, password, predictedData);
+      await _dataBaseService.saveData(empid, user, password, clientid, predictedData);
 
       try {
         await _sqlDatabaseService.signUp(empid, user, email, password);
@@ -187,7 +190,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         } else {
           /// creates an user in the local 'database'
           await _dataBaseService.saveData(
-              empid, status, password, predictedData);
+              empid, status, password, clientid, predictedData);
         }
       } catch (e) {
         print(e);

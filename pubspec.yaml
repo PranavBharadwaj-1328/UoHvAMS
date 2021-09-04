@@ -37,7 +37,7 @@ dependencies:
 #  intl: ^0.17.0
   intro_slider: ^2.4.3
   device_info_plus: ^2.1.0
-#  device_info: ^2.0.2
+  http: ^0.13.3
 
 dev_dependencies:
   flutter_test:
