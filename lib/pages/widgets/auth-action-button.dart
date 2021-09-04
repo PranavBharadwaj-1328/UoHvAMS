@@ -160,12 +160,14 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         return;
       }
-      var url = Uri.http('192.168.1.6:8090', '/createclient',{'id':empid});
+      var url = Uri.http('192.168.1.6:8090', '/createclient', {'id': empid});
       var resp = await http.get(url);
       clientid = resp.body;
       print(clientid);
+
       /// creates an user in the local 'database'
-      await _dataBaseService.saveData(empid, user, password, clientid, predictedData);
+      await _dataBaseService.saveData(
+          empid, user, password, clientid, predictedData);
 
       try {
         await _sqlDatabaseService.signUp(empid, user, email, password);
@@ -201,6 +203,70 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     /// resets the face stored in the face net service
     this._faceNetService.setPredictedData(null);
     Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+  }
+
+  ///OAuth based entry
+  Future _oauth(context) async {
+    String token;
+    var url = Uri.http('192.168.1.6:8090', '/generatetoken',
+        {'id': this.predictedUser.clientId});
+    var tokresp = await http.get(url);
+    // await Future.delayed(const Duration(milliseconds: 1000));
+    token = tokresp.body;
+    print(token);
+    var geoRegion = await getCurrentLocation(context);
+    if (geoRegion == null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text('Not in campus!'),
+          );
+        },
+      );
+    } else {
+      // await Future.delayed(const Duration(milliseconds: 1000));
+      if (tokresp.statusCode == 200) {
+        var url1 = Uri.http('192.168.1.6:8090', '/authorize', {'token': token});
+        var auth = await http.get(url);
+        String validity = auth.body;
+        print(validity);
+        // await Future.delayed(const Duration(milliseconds: 1000));
+        // if (validity == "valid token") {
+          await _sqlDatabaseService.signIn(
+              this.predictedUser.empId, this.predictedUser.user, "i");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => Profile(
+                this.predictedUser.empId,
+                this.predictedUser.user,
+                geoRegion,
+                imagePath: _cameraService.imagePath,
+              ),
+            ),
+          );
+        // } else {
+        //   showDialog(
+        //     context: context,
+        //     builder: (context) {
+        //       return AlertDialog(
+        //         content: Text('Invalid client'),
+        //       );
+        //     },
+        //   );
+        // }
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text('Token generation failed'),
+            );
+          },
+        );
+      }
+    }
   }
 
   /// SIGN IN
@@ -375,17 +441,34 @@ class _AuthActionButtonState extends State<AuthActionButton> {
             widget.isLogin && predictedUser != null
                 ? buttonLoading
                     ? CircularProgressIndicator()
-                    : AppButton(
-                        text: 'LOGIN',
-                        onPressed: () async {
-                          changeButtonLoadingState(true);
-                          await _signIn(context);
-                          changeButtonLoadingState(false);
-                        },
-                        icon: Icon(
-                          Icons.login,
-                          color: Colors.white,
-                        ),
+                    : Column(
+                        children: <Widget>[
+                          AppButton(
+                            text: 'LOGIN',
+                            onPressed: () async {
+                              changeButtonLoadingState(true);
+                              await _signIn(context);
+                              changeButtonLoadingState(false);
+                            },
+                            icon: Icon(
+                              Icons.login,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          AppButton(
+                            text: 'OAuth',
+                            onPressed: () async {
+                              changeButtonLoadingState(true);
+                              await _oauth(context);
+                              changeButtonLoadingState(false);
+                            },
+                            icon: Icon(
+                              Icons.login,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
                       )
                 : !widget.isLogin
                     ? buttonLoading
