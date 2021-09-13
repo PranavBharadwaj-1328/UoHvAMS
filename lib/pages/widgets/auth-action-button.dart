@@ -228,11 +228,11 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       // await Future.delayed(const Duration(milliseconds: 1000));
       if (tokresp.statusCode == 200) {
         var url1 = Uri.http('192.168.1.6:8090', '/authorize', {'token': token});
-        var auth = await http.get(url);
+        var auth = await http.get(url1);
         String validity = auth.body;
         print(validity);
         // await Future.delayed(const Duration(milliseconds: 1000));
-        // if (validity == "valid token") {
+        if (validity == "valid token") {
           await _sqlDatabaseService.signIn(
               this.predictedUser.empId, this.predictedUser.user, "i");
           Navigator.push(
@@ -246,24 +246,25 @@ class _AuthActionButtonState extends State<AuthActionButton> {
               ),
             ),
           );
-        // } else {
-        //   showDialog(
-        //     context: context,
-        //     builder: (context) {
-        //       return AlertDialog(
-        //         content: Text('Invalid client'),
-        //       );
-        //     },
-        //   );
-        // }
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text('Invalid client'),
+              );
+            },
+          );
+        }
       } else {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Text('Token generation failed'),
-            );
-          },
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Token generation failed'),
+            action: SnackBarAction(
+              label: 'Ok',
+              onPressed: () {},
+            ),
+          ),
         );
       }
     }
@@ -455,7 +456,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                               color: Colors.white,
                             ),
                           ),
-                          SizedBox(height: 10),
+                          SizedBox(height: 20),
                           AppButton(
                             text: 'OAuth',
                             onPressed: () async {
