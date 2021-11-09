@@ -179,7 +179,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       /// sign up old user
       try {
         var status = await _sqlDatabaseService.signUpOldUser(empid, password);
-        if (status == '') {
+        if (status == null) {
           final snackBar = SnackBar(
             content: const Text('Incorrect password!'),
             action: SnackBarAction(

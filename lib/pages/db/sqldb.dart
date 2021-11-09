@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:mysql1/mysql1.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
+
 class SqlDatabaseService {
   // singleton boilerplate
   static final SqlDatabaseService _cameraServiceService =
@@ -11,6 +12,7 @@ class SqlDatabaseService {
   }
   SqlDatabaseService._internal();
   var serverIp = '10.5.0.208:8090';
+
   /// CONNECTS TO DB
   // Future<MySqlConnection> connect() async {
   //   print("conn");
@@ -36,7 +38,6 @@ class SqlDatabaseService {
   Future<String> _getId() async {
     var deviceInfo = DeviceInfoPlugin();
     if (Platform.isIOS) {
-      // import 'dart:io'
       var iosDeviceInfo = await deviceInfo.iosInfo;
       return iosDeviceInfo.identifierForVendor; // unique ID on iOS
     } else {
@@ -50,7 +51,8 @@ class SqlDatabaseService {
       String empId, String user, String email, String password) async {
     print("signup");
     // MySqlConnection conn = await connect();
-    var url = Uri.http(serverIp,'/signup',{'emp_id':empId, 'name': user, 'email': email, 'password': password});
+    var url = Uri.http(serverIp, '/signup',
+        {'emp_id': empId, 'name': user, 'email': email, 'password': password});
     var response = await http.get(url);
     print(response);
     var devId = await _getId();
@@ -71,27 +73,36 @@ class SqlDatabaseService {
   /// SIGN UP (old user)
 
   Future<String> signUpOldUser(String empId, String pwd) async {
-  //   print("signup- old user");
-  //   MySqlConnection conn = await connect();
-  //
-  //   var result = await conn.query(
-  //     'SELECT * from User_table WHERE emp_id=(?) AND password=(?)',
-  //     [empId, pwd],
-  //   );
-  //
-  //   var status = '';
-  //   for (var row in result) status = row[2];
-  //
-  //   await conn.close();
-  //   print('old user:' + status + ' sign up done');
-  print("fvhfv");
-  //   return status;
+    print("signup- old user");
+    var url = Uri.http(
+        serverIp, '/signup_olduser', {'emp_id': empId, 'password': pwd});
+    var response = await http.get(url);
+    var status = response.body;
+
+    print(status);
+
+    return status == "Wrong password" ? null : status;
+
+    //   MySqlConnection conn = await connect();
+    //
+    //   var result = await conn.query(
+    //     'SELECT * from User_table WHERE emp_id=(?) AND password=(?)',
+    //     [empId, pwd],
+    //   );
+    //
+    //   var status = '';
+    //   for (var row in result) status = row[2];
+    //
+    //   await conn.close();
+    // print('old user: sign up done');
+    // return status;
   }
 
   /// SIGN IN
   Future<void> signIn(String empId, String user, String io) async {
     print("signin");
-    var url = Uri.http(serverIp,'/signin',{'emp_id':empId, 'name': user, 'in_out':io});
+    var url = Uri.http(
+        serverIp, '/signin', {'emp_id': empId, 'name': user, 'in_out': io});
     var response = await http.get(url);
     print(response);
     // MySqlConnection conn = await connect();
@@ -113,7 +124,8 @@ class SqlDatabaseService {
   Future<void> logGeoFence(
       String empId, String user, String entryId, String io) async {
     print("logging geo-fence updates");
-    var url = Uri.http(serverIp,'/geolog',{'emp_id':empId, 'name': user, 'loc_id':entryId, 'in_out':io});
+    var url = Uri.http(serverIp, '/geolog',
+        {'emp_id': empId, 'name': user, 'loc_id': entryId, 'in_out': io});
     var response = await http.get(url);
     print(response);
     // MySqlConnection conn = await connect();
@@ -146,7 +158,7 @@ class SqlDatabaseService {
     // print(status);
     // return status == '' ? null : status;
     // print("jvjfb");
-    var url = Uri.http(serverIp,'/getname',{'emp_id':empId});
+    var url = Uri.http(serverIp, '/getname', {'id': empId});
     var response = await http.get(url);
     var status = response.body;
     print(status);
