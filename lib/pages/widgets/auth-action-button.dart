@@ -160,7 +160,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         return;
       }
-      var url = Uri.http('192.168.1.6:8090', '/createclient', {'id': empid});
+      var url = Uri.http('10.5.0.208:8090', '/createclient', {'id': empid});
       var resp = await http.get(url);
       clientid = resp.body;
       print(clientid);
@@ -208,7 +208,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   ///OAuth based entry
   Future _oauth(context) async {
     String token;
-    var url = Uri.http('192.168.1.6:8090', '/generatetoken',
+    var url = Uri.http('10.5.0.208:8090', '/generatetoken',
         {'id': this.predictedUser.clientId});
     var tokresp = await http.get(url);
     // await Future.delayed(const Duration(milliseconds: 1000));
@@ -227,7 +227,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     } else {
       // await Future.delayed(const Duration(milliseconds: 1000));
       if (tokresp.statusCode == 200) {
-        var url1 = Uri.http('192.168.1.6:8090', '/authorize', {'token': token});
+        var url1 = Uri.http('10.5.0.208:8090', '/authorize', {'token': token});
         var auth = await http.get(url1);
         String validity = auth.body;
         print(validity);
@@ -456,7 +456,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                               color: Colors.white,
                             ),
                           ),
-                          SizedBox(height: 20),
+                          SizedBox(height: 30),
                           AppButton(
                             text: 'OAuth',
                             onPressed: () async {

@@ -33,9 +33,15 @@ class _ProfileState extends State<Profile> {
       "id": "NKS home",
     },
     {
+      "latitude": 17.4552911,
+      "longitude": 78.3326162,
+      "radius": 50.0,
+      "id": "SCIS Annex",
+    },
+    {
       "latitude": 17.3980944,
       "longitude":  78.5199617,
-      "radius": 5.0,
+      "radius": 1000.0,
       "id": "PB Home",
     },
     {
