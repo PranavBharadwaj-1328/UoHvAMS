@@ -11,7 +11,7 @@ class SqlDatabaseService {
     return _cameraServiceService;
   }
   SqlDatabaseService._internal();
-  var serverIp = '10.5.0.208:8090';
+  var serverIp = 'scislearn3.uohyd.ac.in:8090';
 
   /// CONNECTS TO DB
   // Future<MySqlConnection> connect() async {

@@ -49,13 +49,13 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   String lat;
   String lon;
   bool buttonLoading = false;
-  var serverIp = '10.5.0.208:8090';
+  var serverIp = 'scislearn3.uohyd.ac.in:8090';
 
   List<Map<String, dynamic>> geoRegions = [
     {
-      "latitude": 17.456900943260322,
-      "longitude": 78.3263732689548,
-      "radius": 30000.0,
+      "latitude": 17.456628794167337,
+      "longitude": 78.32638412030175,
+      "radius": 13000.0,
       "id": "Campus",
     },
   ];

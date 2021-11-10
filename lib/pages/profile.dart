@@ -26,12 +26,12 @@ class _ProfileState extends State<Profile> {
   String _platformVersion = 'Unknown';
   String position = "Unknown";
   List<Map<String, dynamic>> geoRegions = [
-    {
-      "latitude": 17.4301783,
-      "longitude": 78.5421611,
-      "radius": 25.0,
-      "id": "NKS home",
-    },
+    // {
+    //   "latitude": 17.4301783,
+    //   "longitude": 78.5421611,
+    //   "radius": 25.0,
+    //   "id": "NKS home",
+    // },
     {
       "latitude": 17.4552911,
       "longitude": 78.3326162,
@@ -39,40 +39,70 @@ class _ProfileState extends State<Profile> {
       "id": "SCIS Annex",
     },
     {
-      "latitude": 17.3980944,
-      "longitude":  78.5199617,
-      "radius": 1000.0,
-      "id": "PB Home",
-    },
-    {
-      "latitude": 17.503565,
-      "longitude": 78.356778,
-      "radius": 20.0,
-      "id": "Rohan Home",
-    },
-    {
-      "latitude": 17.504054,
-      "longitude": 78.357531,
-      "radius": 20.0,
-      "id": "Rohan Neighbour",
-    },
-    {
-      "latitude": 17.402356305545407,
-      "longitude": 78.44378929717998,
+      "latitude": 17.455353580081628,
+      "longitude": 78.33218325448995,
       "radius": 50.0,
-      "id": "Salman sir",
+      "id": "SCIS",
     },
+    // {
+    //   "latitude": 17.3980944,
+    //   "longitude":  78.5199617,
+    //   "radius": 1000.0,
+    //   "id": "PB Home",
+    // },
     {
-      "latitude": 17.487547926446105,
-      "longitude": 78.31434161006122,
-      "radius": 50.0,
-      "id": "Satish sir",
+      "latitude": 17.455254922666313,
+      "longitude": 78.33146588241979,
+      "radius": 20.0,
+      "id": "Student's Canteen",
     },
+    // {
+    //   "latitude": 17.503565,
+    //   "longitude": 78.356778,
+    //   "radius": 20.0,
+    //   "id": "Rohan Home",
+    // },
+    // {
+    //   "latitude": 17.504054,
+    //   "longitude": 78.357531,
+    //   "radius": 20.0,
+    //   "id": "Rohan Neighbour",
+    // },
+    // {
+    //   "latitude": 17.402356305545407,
+    //   "longitude": 78.44378929717998,
+    //   "radius": 50.0,
+    //   "id": "Salman sir",
+    // },
+    // {
+    //   "latitude": 17.487547926446105,
+    //   "longitude": 78.31434161006122,
+    //   "radius": 50.0,
+    //   "id": "Satish sir",
+    // },
     {
       "latitude": 17.460088835720907,
       "longitude": 78.33429144469663,
-      "radius": 100,
+      "radius": 100.0,
       "id": "UoH Admin block",
+    },
+    {
+      "latitude": 17.456129792411453,
+      "longitude": 78.32821012656873,
+      "radius": 60.0,
+      "id": "Zakir Hussain (UPE)",
+    },
+    {
+      "latitude": 17.456301490035756,
+      "longitude": 78.31518530394179,
+      "radius": 84.0,
+      "id": "SLS (New)",
+    },
+    {
+      "latitude": 17.454093586886074,
+      "longitude": 78.32960817507471,
+      "radius": 30.0,
+      "id": "DST Auditorium",
     },
   ];
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
