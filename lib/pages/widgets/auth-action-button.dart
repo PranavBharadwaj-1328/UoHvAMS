@@ -49,6 +49,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   String lat;
   String lon;
   bool buttonLoading = false;
+  var serverIp = '10.5.0.208:8090';
 
   List<Map<String, dynamic>> geoRegions = [
     {
@@ -160,7 +161,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         return;
       }
-      var url = Uri.http('10.5.0.208:8090', '/createclient', {'id': empid});
+      var url = Uri.http(serverIp, '/createclient', {'id': empid});
       var resp = await http.get(url);
       clientid = resp.body;
       print(clientid);
@@ -191,6 +192,9 @@ class _AuthActionButtonState extends State<AuthActionButton> {
           return;
         } else {
           /// creates an user in the local 'database'
+          var url = Uri.http(serverIp, '/getclient',{'emp_id':empid});
+          var response = await http.get(url);
+          clientid = response.body;
           await _dataBaseService.saveData(
               empid, status, password, clientid, predictedData);
         }
@@ -208,7 +212,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   ///OAuth based entry
   Future _oauth(context) async {
     String token;
-    var url = Uri.http('10.5.0.208:8090', '/generatetoken',
+    var url = Uri.http(serverIp, '/generatetoken',
         {'id': this.predictedUser.clientId});
     var tokresp = await http.get(url);
     // await Future.delayed(const Duration(milliseconds: 1000));
@@ -227,7 +231,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     } else {
       // await Future.delayed(const Duration(milliseconds: 1000));
       if (tokresp.statusCode == 200) {
-        var url1 = Uri.http('10.5.0.208:8090', '/authorize', {'token': token});
+        var url1 = Uri.http(serverIp, '/authorize', {'token': token});
         var auth = await http.get(url1);
         String validity = auth.body;
         print(validity);
