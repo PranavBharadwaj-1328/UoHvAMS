@@ -38,6 +38,7 @@ class AppTextField extends StatelessWidget {
       decoration: InputDecoration(
         floatingLabelBehavior: FloatingLabelBehavior.never,
         labelText: labelText,
+
         border: InputBorder.none,
         // errorText: validate(this.controller.text),
         filled: true,

@@ -192,7 +192,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
           return;
         } else {
           /// creates an user in the local 'database'
-          var url = Uri.http(serverIp, '/getclient',{'emp_id':empid});
+          var url = Uri.http(serverIp, '/getclient', {'emp_id': empid});
           var response = await http.get(url);
           clientid = response.body;
           await _dataBaseService.saveData(
@@ -212,8 +212,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   ///OAuth based entry
   Future _oauth(context) async {
     String token;
-    var url = Uri.http(serverIp, '/generatetoken',
-        {'id': this.predictedUser.clientId});
+    var url = Uri.http(
+        serverIp, '/generatetoken', {'id': this.predictedUser.clientId});
     var tokresp = await http.get(url);
     // await Future.delayed(const Duration(milliseconds: 1000));
     token = tokresp.body;
@@ -397,7 +397,10 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                     padding: EdgeInsets.only(top: 10.0, bottom: 30.0),
                     child: Text(
                       'Welcome back, ' + predictedUser.user + '!',
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w100,
+                      ),
                     ),
                   )
                 : widget.isLogin
@@ -439,8 +442,6 @@ class _AuthActionButtonState extends State<AuthActionButton> {
             ),
 
             SizedBox(height: 10),
-            Divider(),
-            SizedBox(height: 10),
 
             // button
             widget.isLogin && predictedUser != null
@@ -460,19 +461,22 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                               color: Colors.white,
                             ),
                           ),
-                          SizedBox(height: 30),
+                          SizedBox(height: 10),
+                          Divider(),
+                          SizedBox(height: 10),
                           AppButton(
-                            text: 'OAuth',
+                            text: 'Continue with UOHvAMS',
                             onPressed: () async {
                               changeButtonLoadingState(true);
                               await _oauth(context);
                               changeButtonLoadingState(false);
                             },
                             icon: Icon(
-                              Icons.login,
+                              Icons.map,
                               color: Colors.white,
                             ),
-                          )
+                            color: Color(0xFFEE4637),
+                          ),
                         ],
                       )
                 : !widget.isLogin
