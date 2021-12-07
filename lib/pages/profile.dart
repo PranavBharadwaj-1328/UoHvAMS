@@ -35,7 +35,7 @@ class _ProfileState extends State<Profile> {
     {
       "latitude": 17.4552911,
       "longitude": 78.3326162,
-      "radius": 50.0,
+      "radius": 30.0,
       "id": "SCIS Annex",
     },
     {
@@ -115,6 +115,7 @@ class _ProfileState extends State<Profile> {
   /// Logout function
   Future<void> _logout() async {
     await _sqlDatabaseService.signIn(widget.empId, widget.username, "o");
+    await _sqlDatabaseService.logGeoFence(widget.empId, widget.username, position, "o");
     _geolocatorStream.cancel();
     _notificationService.scheduleNotification(
       "Exit Campus!",
