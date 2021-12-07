@@ -1,6 +1,6 @@
 import 'dart:io';
 // import 'package:mysql1/mysql1.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+// import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
 
 class SqlDatabaseService {
@@ -35,16 +35,16 @@ class SqlDatabaseService {
   // }
 
   /// Device Id
-  Future<String> _getId() async {
-    var deviceInfo = DeviceInfoPlugin();
-    if (Platform.isIOS) {
-      var iosDeviceInfo = await deviceInfo.iosInfo;
-      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
-    } else {
-      var androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // unique ID on Android
-    }
-  }
+  // Future<String> _getId() async {
+  //   var deviceInfo = DeviceInfoPlugin();
+  //   if (Platform.isIOS) {
+  //     var iosDeviceInfo = await deviceInfo.iosInfo;
+  //     return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+  //   } else {
+  //     var androidDeviceInfo = await deviceInfo.androidInfo;
+  //     return androidDeviceInfo.androidId; // unique ID on Android
+  //   }
+  // }
 
   /// SIGN UP (new user)
   Future<void> signUp(
@@ -55,8 +55,8 @@ class SqlDatabaseService {
         {'emp_id': empId, 'name': user, 'email': email, 'password': password});
     var response = await http.get(url);
     print(response);
-    var devId = await _getId();
-    print(devId);
+    // var devId = await _getId();
+    // print(devId);
     // TODO: put id into mobile id table
 
     // var result = await conn.query(
