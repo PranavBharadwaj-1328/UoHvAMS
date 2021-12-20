@@ -11,7 +11,8 @@ import 'package:geolocator/geolocator.dart';
 
 class Profile extends StatefulWidget {
   /// doubt doubt
-  const Profile(this.empId, this.username, this.location, {Key key, this.imagePath})
+  const Profile(this.empId, this.username, this.location,
+      {Key key, this.imagePath})
       : super(key: key);
   final String empId;
   final String username;
@@ -26,12 +27,19 @@ class _ProfileState extends State<Profile> {
   String _platformVersion = 'Unknown';
   String position = "Unknown";
   List<Map<String, dynamic>> geoRegions = [
-    // {
-    //   "latitude": 17.4301783,
-    //   "longitude": 78.5421611,
-    //   "radius": 25.0,
-    //   "id": "NKS home",
-    // },
+    // north campus
+    {
+      "latitude": 17.460088835720907,
+      "longitude": 78.33429144469663,
+      "radius": 100.0,
+      "id": "UoH Admin block",
+    },
+    {
+      "latitude": 17.465523085180703,
+      "longitude": 78.32763147054699,
+      "radius": 15.0,
+      "id": "UCESS",
+    },
     {
       "latitude": 17.4552911,
       "longitude": 78.3326162,
@@ -44,48 +52,13 @@ class _ProfileState extends State<Profile> {
       "radius": 50.0,
       "id": "SCIS",
     },
-    // {
-    //   "latitude": 17.3980944,
-    //   "longitude":  78.5199617,
-    //   "radius": 1000.0,
-    //   "id": "PB Home",
-    // },
     {
       "latitude": 17.455254922666313,
       "longitude": 78.33146588241979,
       "radius": 20.0,
       "id": "Student's Canteen",
     },
-    // {
-    //   "latitude": 17.503565,
-    //   "longitude": 78.356778,
-    //   "radius": 20.0,
-    //   "id": "Rohan Home",
-    // },
-    // {
-    //   "latitude": 17.504054,
-    //   "longitude": 78.357531,
-    //   "radius": 20.0,
-    //   "id": "Rohan Neighbour",
-    // },
-    // {
-    //   "latitude": 17.402356305545407,
-    //   "longitude": 78.44378929717998,
-    //   "radius": 50.0,
-    //   "id": "Salman sir",
-    // },
-    // {
-    //   "latitude": 17.487547926446105,
-    //   "longitude": 78.31434161006122,
-    //   "radius": 50.0,
-    //   "id": "Satish sir",
-    // },
-    {
-      "latitude": 17.460088835720907,
-      "longitude": 78.33429144469663,
-      "radius": 100.0,
-      "id": "UoH Admin block",
-    },
+
     {
       "latitude": 17.456129792411453,
       "longitude": 78.32821012656873,
@@ -93,16 +66,55 @@ class _ProfileState extends State<Profile> {
       "id": "Zakir Hussain (UPE)",
     },
     {
-      "latitude": 17.456301490035756,
-      "longitude": 78.31518530394179,
-      "radius": 84.0,
-      "id": "SLS (New)",
-    },
-    {
       "latitude": 17.454093586886074,
       "longitude": 78.32960817507471,
       "radius": 30.0,
       "id": "DST Auditorium",
+    },
+    {
+      "latitude": 17.456221828477208,
+      "longitude": 78.32987851276606,
+      "radius": 100.0,
+      "id": "Science Complex",
+    },
+    // white rocks
+    {
+      "latitude": 17.453543270778734,
+      "longitude": 78.32021966064161,
+      "radius": 90.0,
+      "id": "Aminity Center",
+    },
+    // south campus
+    {
+      "latitude": 17.452951251828658,
+      "longitude": 78.31541247438054,
+      "radius": 50.0,
+      "id": "ACRHEM (Advanced Centre of Research in High Energy Materials)",
+    },
+    {
+      "latitude": 17.454029653512475,
+      "longitude": 78.31524384291443,
+      "radius": 50.0,
+      "id": "Center for Nanotechnology",
+    },
+    {
+      "latitude": 17.45397561058677,
+      "longitude": 78.31383415174568,
+      "radius": 70.0,
+      "id": "CIS (College for Integrated Studies)",
+    },
+    {
+      "latitude": 17.454944653657957,
+      "longitude": 78.3139295098544,
+      "radius": 30.0,
+      "id":
+          "School of Engineering Science & Technology (Study India Program Building)",
+    },
+    {
+      "latitude": 17.456301490035756,
+      "longitude": 78.31518530394179,
+      "radius": 84.0,
+      "id": "SLS (New)",
     },
   ];
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -115,7 +127,8 @@ class _ProfileState extends State<Profile> {
   /// Logout function
   Future<void> _logout() async {
     await _sqlDatabaseService.signIn(widget.empId, widget.username, "o");
-    await _sqlDatabaseService.logGeoFence(widget.empId, widget.username, position, "o");
+    await _sqlDatabaseService.logGeoFence(
+        widget.empId, widget.username, position, "o");
     _geolocatorStream.cancel();
     _notificationService.scheduleNotification(
       "Exit Campus!",
@@ -188,13 +201,15 @@ class _ProfileState extends State<Profile> {
 
             if (oldLoc != newLoc) {
               if (newLoc == "Unknown") {
-                await _sqlDatabaseService.logGeoFence(widget.empId, widget.username, oldLoc, "o");
+                await _sqlDatabaseService.logGeoFence(
+                    widget.empId, widget.username, oldLoc, "o");
                 _notificationService.scheduleNotification(
                   "Exit $oldLoc!",
                   "You just left $oldLoc.",
                 );
               } else {
-                await _sqlDatabaseService.logGeoFence(widget.empId, widget.username, newLoc, "i");
+                await _sqlDatabaseService.logGeoFence(
+                    widget.empId, widget.username, newLoc, "i");
                 _notificationService.scheduleNotification(
                   "Entered $newLoc!",
                   "Your attendance at $newLoc has been noted!",
