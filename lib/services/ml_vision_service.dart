@@ -23,9 +23,18 @@ class MLVisionService {
   void initialize() {
     this._faceDetector = FirebaseVision.instance.faceDetector(
       FaceDetectorOptions(
-        mode: FaceDetectorMode.accurate,
-      ),
+          mode: FaceDetectorMode.accurate,
+          enableClassification: true,
+          enableLandmarks: true),
     );
+  }
+
+  bool getBlinks(Face face) {
+    if (face.smilingProbability > 0.5) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<List<Face>> getFacesFromImage(CameraImage image) async {

@@ -4,10 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class FacePainter extends CustomPainter {
-  FacePainter({@required this.imageSize, @required this.face});
+  FacePainter({@required this.imageSize, @required this.face, @required this.liveness});
   final Size imageSize;
   double scaleX, scaleY;
   Face face;
+  bool liveness;
   @override
   void paint(Canvas canvas, Size size) {
     if (face == null) return;
@@ -20,10 +21,18 @@ class FacePainter extends CustomPainter {
         ..strokeWidth = 3.0
         ..color = Colors.red;
     } else {
-      paint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3.0
-        ..color = Colors.green;
+      if (liveness) {
+          paint = Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0
+          ..color = Colors.green;
+      }
+      else {
+        paint = Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.0
+          ..color = Colors.red;
+      }
     }
 
     scaleX = size.width / imageSize.width;

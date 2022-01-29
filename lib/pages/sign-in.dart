@@ -43,6 +43,7 @@ class SignInState extends State<SignIn> {
   String imagePath;
   Size imageSize;
   Face faceDetected;
+  bool liveness;
 
   bool captureButtonLoading = false;
 
@@ -93,6 +94,7 @@ class SignInState extends State<SignIn> {
               // preprocessing the image
               setState(() {
                 faceDetected = faces[0];
+                liveness = _mlVisionService.getBlinks(faces[0]);
               });
 
               if (_saving) {
@@ -211,7 +213,8 @@ class SignInState extends State<SignIn> {
                                   CustomPaint(
                                     painter: FacePainter(
                                         face: faceDetected,
-                                        imageSize: imageSize),
+                                        imageSize: imageSize,
+                                        liveness: liveness),
                                   )
                                 ],
                               ),

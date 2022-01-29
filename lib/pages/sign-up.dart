@@ -34,6 +34,7 @@ class SignUpState extends State<SignUp> {
   // switches when the user press the camera
   bool _saving = false;
   bool _bottomSheetVisible = false;
+  bool liveness = false;
 
   // service injection
   MLVisionService _mlVisionService = MLVisionService();
@@ -207,7 +208,8 @@ class SignUpState extends State<SignUp> {
                                   CustomPaint(
                                     painter: FacePainter(
                                         face: faceDetected,
-                                        imageSize: imageSize),
+                                        imageSize: imageSize,
+                                        liveness: liveness),
                                   ),
                                 ],
                               ),
