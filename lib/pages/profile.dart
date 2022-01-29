@@ -58,7 +58,6 @@ class _ProfileState extends State<Profile> {
       "radius": 20.0,
       "id": "Student's Canteen",
     },
-
     {
       "latitude": 17.456129792411453,
       "longitude": 78.32821012656873,
