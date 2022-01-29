@@ -34,7 +34,7 @@ class SignUpState extends State<SignUp> {
   // switches when the user press the camera
   bool _saving = false;
   bool _bottomSheetVisible = false;
-  bool liveness = false;
+  bool liveness;
 
   // service injection
   MLVisionService _mlVisionService = MLVisionService();
@@ -126,6 +126,7 @@ class SignUpState extends State<SignUp> {
           if (faces.length > 0) {
             setState(() {
               faceDetected = faces[0];
+              liveness = _mlVisionService.getBlinks(faces[0]);
             });
 
             if (_saving) {

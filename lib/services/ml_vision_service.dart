@@ -28,7 +28,7 @@ class MLVisionService {
           enableLandmarks: true),
     );
   }
-
+/// gets liveness thru smile
   bool getBlinks(Face face) {
     if (face.smilingProbability > 0.5) {
       return true;
