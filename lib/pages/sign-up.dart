@@ -135,7 +135,7 @@ class SignUpState extends State<SignUp> {
             } else if (liveness == false) {
               closeCount += 1;
             }
-
+            print("blink:"+blink.toString());
             if (_saving) {
               _faceNetService.setCurrentPrediction(image, faceDetected);
               setState(() {
