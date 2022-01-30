@@ -36,6 +36,7 @@ class SignUpState extends State<SignUp> {
   bool _saving = false;
   bool _bottomSheetVisible = false;
   bool liveness;
+  bool blink = false;
 
   // service injection
   MLVisionService _mlVisionService = MLVisionService();
@@ -130,7 +131,7 @@ class SignUpState extends State<SignUp> {
               liveness = _mlVisionService.getBlinks(faces[0]);
             });
             if (liveness == true && closeCount > 0) {
-              this.onShot();
+              blink = true;
             } else if (liveness == false) {
               closeCount += 1;
             }
@@ -216,7 +217,7 @@ class SignUpState extends State<SignUp> {
                                     painter: FacePainter(
                                         face: faceDetected,
                                         imageSize: imageSize,
-                                        liveness: liveness),
+                                        liveness: blink),
                                   ),
                                 ],
                               ),
@@ -241,7 +242,7 @@ class SignUpState extends State<SignUp> {
         floatingActionButton: !_bottomSheetVisible
             ? AuthActionButton(
                 _initializeControllerFuture,
-                onPressed: onShot,
+                onPressed: blink ? onShot : null,
                 isLogin: false,
                 reload: _reload,
                 captureButtonLoading: captureButtonLoading,

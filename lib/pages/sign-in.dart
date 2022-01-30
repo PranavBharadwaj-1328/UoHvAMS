@@ -44,6 +44,7 @@ class SignInState extends State<SignIn> {
   Size imageSize;
   Face faceDetected;
   bool liveness;
+  bool blink = false;
   int closeCount = 0;
 
   bool captureButtonLoading = false;
@@ -98,7 +99,7 @@ class SignInState extends State<SignIn> {
                 liveness = _mlVisionService.getBlinks(faces[0]);
               });
               if (liveness == true && closeCount > 0) {
-                this.onShot();
+                blink = true;
               } else if (liveness == false) {
                 closeCount += 1;
               }
@@ -243,7 +244,7 @@ class SignInState extends State<SignIn> {
       floatingActionButton: !_bottomSheetVisible
           ? AuthActionButton(
               _initializeControllerFuture,
-              onPressed: onShot,
+              onPressed: blink ? onShot : null,
               isLogin: true,
               reload: _reload,
               captureButtonLoading: captureButtonLoading,
