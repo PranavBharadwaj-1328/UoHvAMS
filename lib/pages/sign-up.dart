@@ -30,6 +30,7 @@ class SignUpState extends State<SignUp> {
 
   Future _initializeControllerFuture;
   bool cameraInitializated = false;
+  int closeCount = 0;
 
   // switches when the user press the camera
   bool _saving = false;
@@ -128,6 +129,11 @@ class SignUpState extends State<SignUp> {
               faceDetected = faces[0];
               liveness = _mlVisionService.getBlinks(faces[0]);
             });
+            if (liveness == true && closeCount > 0) {
+              this.onShot();
+            } else if (liveness == false) {
+              closeCount += 1;
+            }
 
             if (_saving) {
               _faceNetService.setCurrentPrediction(image, faceDetected);

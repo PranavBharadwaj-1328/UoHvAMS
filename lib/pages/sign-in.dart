@@ -44,6 +44,7 @@ class SignInState extends State<SignIn> {
   Size imageSize;
   Face faceDetected;
   bool liveness;
+  int closeCount = 0;
 
   bool captureButtonLoading = false;
 
@@ -96,7 +97,11 @@ class SignInState extends State<SignIn> {
                 faceDetected = faces[0];
                 liveness = _mlVisionService.getBlinks(faces[0]);
               });
-
+              if (liveness == true && closeCount > 0) {
+                this.onShot();
+              } else if (liveness == false) {
+                closeCount += 1;
+              }
               if (_saving) {
                 _saving = false;
                 _faceNetService.setCurrentPrediction(image, faceDetected);

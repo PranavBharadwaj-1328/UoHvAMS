@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
-
 class DataBaseService {
   // singleton boilerplate
   static final DataBaseService _cameraServiceService =
@@ -16,7 +15,6 @@ class DataBaseService {
 
   /// file that stores the data on filesystem
   File jsonFile;
-
   /// Data learned on memory
   Map<String, dynamic> _db = Map<String, dynamic>();
   Map<String, dynamic> get db => this._db;

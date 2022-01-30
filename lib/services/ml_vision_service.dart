@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'package:face_net_authentication/services/camera.service.dart';
 import 'package:camera/camera.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
@@ -30,9 +31,11 @@ class MLVisionService {
   }
 /// gets liveness thru smile
   bool getBlinks(Face face) {
-    if (face.smilingProbability > 0.5) {
+    double prob = (face.leftEyeOpenProbability + face.rightEyeOpenProbability)/2;
+    if(prob >= 0.65) {
       return true;
-    } else {
+    }
+    else {
       return false;
     }
   }

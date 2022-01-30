@@ -139,13 +139,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_face_api:
-    dependency: "direct main"
-    description:
-      name: flutter_face_api
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.1.0"
   flutter_local_notifications:
     dependency: "direct main"
     description:
