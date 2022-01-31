@@ -220,7 +220,7 @@ class SignInState extends State<SignIn> {
                                     painter: FacePainter(
                                         face: faceDetected,
                                         imageSize: imageSize,
-                                        liveness: liveness),
+                                        liveness: blink),
                                   )
                                 ],
                               ),
