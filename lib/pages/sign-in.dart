@@ -244,7 +244,20 @@ class SignInState extends State<SignIn> {
       floatingActionButton: !_bottomSheetVisible
           ? AuthActionButton(
               _initializeControllerFuture,
-              onPressed: blink ? onShot : null,
+              onPressed: blink
+                  ? onShot
+                  : () {
+                      final snackBar = SnackBar(
+                        content: const Text(
+                            'Please blink until the box turns green!'),
+                        action: SnackBarAction(
+                          label: 'Ok',
+                          onPressed: () {},
+                        ),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      return;
+                    },
               isLogin: true,
               reload: _reload,
               captureButtonLoading: captureButtonLoading,
