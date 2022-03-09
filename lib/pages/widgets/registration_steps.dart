@@ -56,8 +56,7 @@ class _RegistrationStepsState extends State<RegistrationSteps> {
       },
       onStepContinue: continueButton,
       onStepCancel: cancelButton,
-      controlsBuilder: (BuildContext context,
-          {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+      controlsBuilder: (BuildContext context, ControlsDetails controls) {
         return Container(
           height: 70,
           child: Row(
@@ -67,7 +66,7 @@ class _RegistrationStepsState extends State<RegistrationSteps> {
               currentStep == 0
                   ? Text("")
                   : ElevatedButton(
-                      onPressed: onStepCancel,
+                      onPressed: controls.onStepCancel,
                       style: ElevatedButton.styleFrom(
                         primary: Colors.grey.shade500,
                         onPrimary: Colors.white,
@@ -82,7 +81,7 @@ class _RegistrationStepsState extends State<RegistrationSteps> {
               currentStep == 1
                   ? Text("")
                   : ElevatedButton(
-                      onPressed: onStepContinue,
+                      onPressed: controls.onStepContinue,
                       style: ElevatedButton.styleFrom(
                         primary: Colors.indigoAccent,
                         onPrimary: Colors.white,
